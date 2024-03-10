@@ -64,6 +64,9 @@ void _arr_adapt(void **arr, size_t count) {
 
 void _arr_erase(void *arr, size_t i, void *from, void *to) {
     printf("[ARR] Erase element at %lld, elem = %f, %f\n", i, *(double*)from, *(double*)to);
+    //TODO: Handle edge cases
+    // - erase last
+    // - erase in one item array
     header *h = arr_header(arr);
     size_t size = (h->size - (i + 1)) * h->item_size;
 
