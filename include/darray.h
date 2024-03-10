@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,6 +17,8 @@ typedef struct {
 #define arr_cap(a) (arr_header(a)->cap)
 #define arr_itemsize(a) (arr_header(a)->item_size)
 #define arr_push(a, v) _arr_adapt((void**)&a, 1); a[arr_size(a)]=v; arr_header(a)->size++
+#define arr_erase(a, i) _arr_erase(a, i, &a[i + 1], &a[i])
+#define arr_popback(a) _arr_popback(a)
 #define arr_free(a) (_arr_free(a))
 
 void *_arr_init(size_t it_size, size_t cap) {
@@ -57,6 +60,19 @@ void _arr_adapt(void **arr, size_t count) {
             *arr = 0;
         }
     }
+}
+
+void _arr_erase(void *arr, size_t i, void *from, void *to) {
+    printf("[ARR] Erase element at %lld, elem = %f, %f\n", i, *(double*)from, *(double*)to);
+    header *h = arr_header(arr);
+    size_t size = (h->size - (i + 1)) * h->item_size;
+
+    memcpy(to, from, size);
+    h->size--;
+}
+
+void _arr_popback(void *arr) {
+    arr_header(arr)->size--;
 }
 
 void _arr_free(void *arr) {
