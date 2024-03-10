@@ -40,6 +40,15 @@ int main(int argc, char **argv) {
     }
     printf("\n");
 
+    arr_erase(myArray, 0);
+    size = arr_size(myArray);
+    cap = arr_cap(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld }\n", size, cap);
+    for (int i = 0; i < arr_size(myArray); i++) {
+        printf("%f, ", myArray[i]);
+    }
+    printf("\n");
+
     arr_free(myArray);
     return 0;
 }
