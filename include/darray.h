@@ -1,5 +1,4 @@
 #pragma once
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,7 +9,7 @@ typedef struct {
     size_t pad;
 } header;
 
-#define _ARR_INIT_CAP 8
+#define _ARR_INIT_CAP 256
 #define arr_init(T) (_arr_init(sizeof(T), _ARR_INIT_CAP))
 #define arr_header(a) ((header *)a - 1)
 #define arr_size(a) (arr_header(a)->size)
@@ -37,7 +36,7 @@ void *_arr_init(size_t it_size, size_t cap) {
 void _arr_adapt(void **arr, size_t count) {
     header *h = arr_header(*arr);
     size_t target_cap = h->size + count;
-    printf("[ARR] Adapting array (count = %lld; item size = %lld)\n", count, h->item_size);
+    //printf("[ARR] Adapting array (count = %lld; item size = %lld)\n", count, h->item_size);
 
     if (h->cap < target_cap) {
         size_t new_cap = h->cap * 2;
