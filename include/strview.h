@@ -1,6 +1,6 @@
 #pragma once
 
 typedef struct {
-    char *ptr;
+    const char *ptr;
     size_t size;
 } strview;

@@ -1,4 +1,5 @@
 #include "day.h"
+#include "darray.h"
 #include "parsing.h"
 #include "strview.h"
 
@@ -25,6 +26,11 @@ strview part2() {
 int run(strview *part1_out, strview *part2_out) {
     char *in = read_file(FILE_PATH);
     printf("%s\n", in);
+
+    strview *lines = chr_split(in, "\n");
+    for (int i = 0; i < arr_size(lines); i++) {
+        printf("Got a line : '%.*s'\n", (int)lines[i].size, lines[i].ptr);
+    }
 
     *part1_out = part1();
     *part2_out = part2();
