@@ -23,17 +23,19 @@ char *read_file(const char *path) {
 
 strview *chr_split(const char *str, const char *sep) {
     strview *splits = arr_init(strview);
+
+    size_t sep_size = strlen(sep);
     const char *start = str;
     const char *found = str;
 
     while ((found = strstr(start, sep))) {
-        size_t size = (found - start) - strlen(sep);
+        size_t size = (found - start) - sep_size;
         if (size > 0) {
             strview cur = (strview) {start, size};
             arr_push(splits, cur);
         }
 
-        start = found + 1;
+        start = found + sep_size;
     }
     return splits;
 }
