@@ -1,9 +1,9 @@
-#include "darray.h"
 #include <stdio.h>
 
 int main(int argc, char **argv) {
     printf("[MAIN] Trying my hand at C??\n");
 
+    /* Dynamic Array tests
     printf("[MAIN] Creating a dynamic array ...\n");
     double *myArray = arr_init(double);
 
@@ -50,5 +50,6 @@ int main(int argc, char **argv) {
     printf("\n");
 
     arr_free(myArray);
+    */
     return 0;
 }
