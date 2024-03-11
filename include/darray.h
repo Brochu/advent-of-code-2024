@@ -20,6 +20,7 @@ typedef struct {
 #define arr_erase(a, i) _arr_erase(a, i, &a[i + 1], &a[i])
 #define arr_free(a) (_arr_free(a))
 
+//TODO: Move function implementations to C file
 void *_arr_init(size_t it_size, size_t cap) {
     void *ptr = 0;
 
