@@ -6,13 +6,14 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 message(" -=- Creating build folder for Day : ${DAY} -=- ")
 
 set (headers
-    #${CMAKE_CURRENT_LIST_DIR}/include/day.h
+    ${CMAKE_CURRENT_LIST_DIR}/include/day.h
     ${CMAKE_CURRENT_LIST_DIR}/include/darray.h
-    #${CMAKE_CURRENT_LIST_DIR}/include/parsing.h
+    ${CMAKE_CURRENT_LIST_DIR}/include/parsing.h
+    ${CMAKE_CURRENT_LIST_DIR}/include/strview.h
 )
 set (source
-    #${CMAKE_CURRENT_LIST_DIR}/src/day${DAY}.cpp
-    #${CMAKE_CURRENT_LIST_DIR}/src/parsing.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/day${DAY}.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/parsing.c
     ${CMAKE_CURRENT_LIST_DIR}/src/main.c
 )
 
