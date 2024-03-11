@@ -13,6 +13,7 @@ set (headers
 )
 set (source
     ${CMAKE_CURRENT_LIST_DIR}/src/day${DAY}.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/darray.c
     ${CMAKE_CURRENT_LIST_DIR}/src/parsing.c
     ${CMAKE_CURRENT_LIST_DIR}/src/main.c
 )
