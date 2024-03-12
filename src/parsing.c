@@ -45,9 +45,27 @@ strview *str_split(const strview str, const char *sep) {
 }
 
 void chr_split_once(const char *str, const char *sep, strview *first, strview *rest) {
-    //TODO: Impl split on first instance of sep in str
-    first = 0;
-    rest = 0;
+    //TODO: Test needed
+    size_t sep_size = strlen(sep);
+    size_t str_size = strlen(str);
+
+    if (first != NULL) {
+        *first = (strview) {str, 0};
+    }
+    if (rest != NULL) {
+        *rest = (strview) {str, 0};
+    }
+
+    char *found = strstr(str, sep);
+    size_t diff = found - str;
+    if (found != NULL) {
+        if (first != NULL) {
+            *first = (strview) { str, diff };
+        }
+        if (rest != NULL) {
+            *rest = (strview) { &str[diff + sep_size], str_size - diff - sep_size };
+        }
+    }
 }
 void str_split_once(strview str, const char *sep, strview *first, strview *rest) {
     size_t sep_size = strlen(sep);
