@@ -50,9 +50,26 @@ void chr_split_once(const char *str, const char *sep, strview *first, strview *r
     rest = 0;
 }
 void str_split_once(strview str, const char *sep, strview *first, strview *rest) {
-    //TODO: Impl split on first instance of sep in str
-    first = 0;
-    rest = 0;
+    size_t sep_size = strlen(sep);
+
+    if (first != NULL) {
+        *first = str;
+    }
+    if (rest != NULL) {
+        *rest = str;
+    }
+
+    for (int i = 0; i < str.size; i++) {
+        if (str.ptr[i] == sep[0] && memcmp(&str.ptr[i], sep, sep_size) == 0) {
+            if (first != NULL) {
+                *first = (strview) { str.ptr, i };
+            }
+            if (rest != NULL) {
+                *rest = (strview) { &str.ptr[i + sep_size], str.size - i - sep_size };
+            }
+            return;
+        }
+    }
 }
 
 /*

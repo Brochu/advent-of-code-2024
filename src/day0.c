@@ -30,6 +30,12 @@ int run(strview *part1_out, strview *part2_out) {
     strview *lines = chr_split(in, "\n");
     for (int i = 0; i < arr_size(lines); i++) {
         printf("Got a line : '%.*s'\n", (int)lines[i].size, lines[i].ptr);
+
+        strview first;
+        strview rest;
+        str_split_once(lines[i], ": ", &first, &rest);
+        printf("First '%.*s' ; Rest '%.*s'\n", (int)first.size, first.ptr, (int)rest.size, rest.ptr);
+        printf("\n");
     }
 
     *part1_out = part1();
