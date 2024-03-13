@@ -5,6 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 
+const char *strviewstr(strview str, const char *sep) {
+    size_t sep_size = strlen(sep);
+
+    for (int i = 0; i < str.size; i++) {
+        if (str.ptr[i] == sep[0] && memcmp(&str.ptr[i], sep, sep_size) == 0) {
+            return &str.ptr[i];
+        }
+    }
+    return 0;
+}
 
 char *read_file(const char *path) {
     FILE *f = 0;
@@ -40,8 +50,29 @@ strview *chr_split(const char *str, const char *sep) {
     return splits;
 }
 strview *str_split(const strview str, const char *sep) {
-    //TODO: Impl split str at each instance of sep
-    return 0;
+    //TODO: Test needed
+    strview *splits = arr_init(strview);
+
+    size_t sep_size = strlen(sep);
+    strview start = str;
+    const char *found = str.ptr;
+
+    while ((found = strviewstr(start, sep))) {
+        size_t size = (found - start.ptr);
+        if (size > 0) {
+            strview cur = (strview) {start.ptr, size};
+            arr_push(splits, cur);
+        }
+
+        start.ptr = found + sep_size;
+        start.size -= size + sep_size;
+    }
+
+    if (start.size > 0) {
+        arr_push(splits, start);
+    }
+
+    return splits;
 }
 
 void chr_split_once(const char *str, const char *sep, strview *first, strview *rest) {
@@ -77,16 +108,16 @@ void str_split_once(strview str, const char *sep, strview *first, strview *rest)
         *rest = str;
     }
 
-    for (int i = 0; i < str.size; i++) {
-        if (str.ptr[i] == sep[0] && memcmp(&str.ptr[i], sep, sep_size) == 0) {
-            if (first != NULL) {
-                *first = (strview) { str.ptr, i };
-            }
-            if (rest != NULL) {
-                *rest = (strview) { &str.ptr[i + sep_size], str.size - i - sep_size };
-            }
-            return;
+    const char *found = strviewstr(str, sep);
+    size_t diff = found - str.ptr;
+    if (found != NULL) {
+        if (first != NULL) {
+            *first = (strview) { str.ptr, diff };
         }
+        if (rest != NULL) {
+            *rest = (strview) { &str.ptr[diff + sep_size], str.size - diff - sep_size };
+        }
+        return;
     }
 }
 
