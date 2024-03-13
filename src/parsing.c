@@ -120,31 +120,3 @@ void str_split_once(strview str, const char *sep, strview *first, strview *rest)
         return;
     }
 }
-
-/*
-std::vector<char*> split_char(char *str, const std::string &separator) {
-    std::vector<char*> tokens;
-    char *found = str;
-
-    while((found = strstr(str, separator.c_str()))) {
-        tokens.push_back(str);
-        str = found;
-        for (int i = 0; i < separator.size(); i++) {
-            found[i] = '\0';
-            str++;
-        }
-    }
-
-    tokens.push_back(str);
-
-    auto end = std::remove_if(tokens.begin(), tokens.end(), [](char *val){ return strlen(val) == 0; });
-    return { tokens.begin(), end };
-}
-
-void split_once(char *str, const std::string &separator, char **first, char **rest) {
-    *first = strtok_s(str, separator.c_str(), rest);
-    for (int i = 0; i < separator.size() - 1; i++) { (*rest)++; }
-}
-
-}
-*/
