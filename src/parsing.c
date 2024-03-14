@@ -47,10 +47,15 @@ strview *chr_split(const char *str, const char *sep) {
 
         start = found + sep_size;
     }
+
+    size_t rest_size = strlen(start);
+    if (rest_size > 0) {
+        strview last = (strview) {start, rest_size};
+        arr_push(splits, last);
+    }
     return splits;
 }
 strview *str_split(const strview str, const char *sep) {
-    //TODO: Test needed
     strview *splits = arr_init(strview);
 
     size_t sep_size = strlen(sep);
