@@ -1,4 +1,3 @@
 #pragma once
-#include "strview.h"
 
-int run(strview *part1_out, strview *part2_out);
+int run(char *part1_out, char *part2_out);

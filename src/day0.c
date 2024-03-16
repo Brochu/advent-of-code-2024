@@ -14,16 +14,18 @@
 #define FILE_PATH ".\\inputs\\day0.txt"
 #endif // ------------------------------------
 
-strview part1() {
-    return (strview) { "NotCompleted", 12 };
+int part1(char *out) {
+    sprintf_s(out, 1024, "NotCompleted : %d", 42);
+    return 0;
 }
 
-strview part2() {
-    return (strview) { "NotCompleted", 12 };
+int part2(char *out) {
+    sprintf_s(out, 1024, "NotCompleted : %d", 69);
+    return 0;
 }
 
 
-int run(strview *part1_out, strview *part2_out) {
+int run(char *part1_out, char *part2_out) {
     char *in = read_file(FILE_PATH);
     printf("%s\n", in);
 
@@ -41,8 +43,8 @@ int run(strview *part1_out, strview *part2_out) {
         printf("\n");
     }
 
-    *part1_out = part1();
-    *part2_out = part2();
+    part1(part1_out);
+    part2(part2_out);
 
     free(in);
     return 0;
