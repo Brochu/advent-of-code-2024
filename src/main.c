@@ -1,5 +1,7 @@
-#include "day.h"
 #include <stdio.h>
+
+#include "day.h"
+#include "strview.h"
 
 int main(int argc, char **argv) {
     printf("[MAIN] Trying my hand at C??\n");
