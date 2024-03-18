@@ -6,8 +6,8 @@
 int main(int argc, char **argv) {
     printf("[MAIN] Trying my hand at C??\n");
 
-    char *p1 = calloc(1024, sizeof(char));
-    char *p2 = calloc(1024, sizeof(char));
+    char *p1 = calloc(RES_MAX_LENGTH, sizeof(char));
+    char *p2 = calloc(RES_MAX_LENGTH, sizeof(char));
     int code = run(p1, p2);
 
     printf("[MAIN] Puzzle solution (code = %i)\n", code);
