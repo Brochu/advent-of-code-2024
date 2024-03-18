@@ -32,7 +32,7 @@ int part1(char *out, game *games) {
         }
     }
 
-    sprintf_s(out, RES_MAX_LENGTH, "NotCompleted : %d", sum);
+    sprintf_s(out, RES_MAX_LENGTH, "%d", sum);
     return 0;
 }
 
