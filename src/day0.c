@@ -23,21 +23,33 @@ int part1(char *out, game *games) {
     size_t sum = 0;
     int totals[3] = { 12, 13, 14 };
 
-    printf("Games: size=%lld, cap=%lld\n", arr_size(games), arr_cap(games));
-    for(int i = 0; i < arr_size(games); i++) {
-        printf("Game(%lld) -> [r]: %i ; [g]: %i ; [b]: %i\n",
-               games[i].id, games[i].maxes[0], games[i].maxes[1], games[i].maxes[2]);
+    //printf("Games: size=%lld, cap=%lld\n", arr_size(games), arr_cap(games));
+    for (int i = 0; i < arr_size(games); i++) {
+        //printf("Game(%lld) -> [r]: %i ; [g]: %i ; [b]: %i\n",
+        //       games[i].id, games[i].maxes[0], games[i].maxes[1], games[i].maxes[2]);
         if (games[i].maxes[0] <= totals[0] && games[i].maxes[1] <= totals[1] && games[i].maxes[2] <= totals[2]) {
             sum += games[i].id;
         }
     }
 
-    sprintf_s(out, RES_MAX_LENGTH, "%d", sum);
+    sprintf_s(out, RES_MAX_LENGTH, "%zd", sum);
     return 0;
 }
 
-int part2(char *out) {
-    sprintf_s(out, RES_MAX_LENGTH, "NotCompleted : %d", 69);
+int part2(char *out, game *games) {
+    size_t sum = 0;
+
+    for (int i = 0; i < arr_size(games); i++) {
+        size_t sub = 1;
+        sub *= games[i].maxes[0];
+        sub *= games[i].maxes[1];
+        sub *= games[i].maxes[2];
+        //printf("[Game %zd] -> subsum = %zd\n", games[i].id, sub);
+
+        sum += sub;
+    }
+
+    sprintf_s(out, RES_MAX_LENGTH, "%zd", sum);
     return 0;
 }
 
@@ -74,7 +86,7 @@ int run(char *part1_out, char *part2_out) {
     }
 
     part1(part1_out, games);
-    part2(part2_out);
+    part2(part2_out, games);
 
     free(in);
     return 0;
