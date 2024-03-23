@@ -23,7 +23,7 @@ char *read_file(const char *path) {
     fseek(f, 0, SEEK_END);
     size_t fsize = ftell(f);
     fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
-    char *contents = malloc(fsize + 1);
+    char *contents = calloc(fsize + 1, sizeof(char));
     fread(contents, fsize, 1, f);
     fclose(f);
 
