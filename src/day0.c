@@ -46,7 +46,7 @@ int run(char *part1_out, char *part2_out) {
     for (int i = 0; i < arr_size(lines); i++) {
         strview *nodes = str_split(lines[i], ", ");
         for (int j = 0; j < arr_size(nodes); j++) {
-            printf("'%.*s'", (int)nodes[j].size, nodes[j].ptr);
+            printf("'%.*s'", STR_ARG(nodes[j]));
             g.vals[j + (i * g.stride)] = atoi(nodes[j].ptr);
         }
         printf("\n");
