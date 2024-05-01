@@ -5,4 +5,5 @@ typedef struct {
     size_t size;
 } strview;
 
+#define STR_FMT "%.*s"
 #define STR_ARG(view) (int)view.size, view.ptr
