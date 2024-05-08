@@ -57,7 +57,7 @@ void _arr_erase(void *arr, size_t i, void *from, void *to) {
     //printf("[ARR] Erase element at %lld, elem = %f, %f\n", i, *(double*)from, *(double*)to);
     size_t size = (h->size - (i + 1)) * h->item_size;
 
-    memcpy(to, from, size);
+    memmove(to, from, size);
     h->size--;
 }
 
