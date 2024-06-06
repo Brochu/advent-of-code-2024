@@ -1,5 +1,6 @@
 #include "darray.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,7 +31,7 @@ void _arr_adapt(void **arr, size_t count) {
         }
 
         size_t new_size = (new_cap * h->item_size) + sizeof(header);
-        header *new_h = malloc(new_size);
+        header *new_h = malloc(new_size); //TODO: Replace with realloc?
         if (new_h) {
             size_t old_size = (h->size * h->item_size) + sizeof(*h);
             memcpy(new_h, h, old_size);
@@ -39,7 +40,7 @@ void _arr_adapt(void **arr, size_t count) {
             new_h->cap = new_cap;
             *arr = (header*)new_h + 1;
         } else {
-            *arr = 0;
+            *arr = NULL;
         }
     }
 }
@@ -63,4 +64,54 @@ void _arr_erase(void *arr, size_t i, void *from, void *to) {
 
 void _arr_free(void *arr) {
     free(arr_header(arr));
+}
+
+void _arr_tests() {
+    // Dynamic Array tests
+    printf("[MAIN] Creating a dynamic array ...\n");
+    double *myArray = arr_init(double);
+
+    size_t size = arr_size(myArray);
+    size_t cap = arr_cap(myArray);
+    size_t it_size = arr_itemsize(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld; item: %lld }\n", size, cap, it_size);
+    for (int i = 0; i < 10; i++) {
+        arr_push(myArray, i);
+    }
+    size = arr_size(myArray);
+    cap = arr_cap(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld }\n", size, cap);
+    for (int i = 0; i < arr_size(myArray); i++) {
+        printf("%f, ", myArray[i]);
+    }
+    printf("\n");
+
+    arr_erase(myArray, 4);
+    size = arr_size(myArray);
+    cap = arr_cap(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld }\n", size, cap);
+    for (int i = 0; i < arr_size(myArray); i++) {
+        printf("%f, ", myArray[i]);
+    }
+    printf("\n");
+
+    arr_popback(myArray);
+    size = arr_size(myArray);
+    cap = arr_cap(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld }\n", size, cap);
+    for (int i = 0; i < arr_size(myArray); i++) {
+        printf("%f, ", myArray[i]);
+    }
+    printf("\n");
+
+    arr_erase(myArray, 0);
+    size = arr_size(myArray);
+    cap = arr_cap(myArray);
+    printf("[MAIN] myArray { size: %lld; cap: %lld }\n", size, cap);
+    for (int i = 0; i < arr_size(myArray); i++) {
+        printf("%f, ", myArray[i]);
+    }
+    printf("\n");
+
+    arr_free(myArray);
 }

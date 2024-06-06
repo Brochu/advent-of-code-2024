@@ -31,3 +31,5 @@ void _arr_popback(void *arr);
 void _arr_erase(void *arr, size_t i, void *from, void *to);
 
 void _arr_free(void *arr);
+
+void _arr_tests();
