@@ -37,6 +37,9 @@ int part2(grid *g, char *out) {
 
 int run(char *part1_out, char *part2_out) {
     char *in = read_file(FILE_PATH);
+    strview input = FromCString(in);
+    printf(""STR_FMT"", STR_ARG(input));
+
     grid g = { .vals = NULL, .stride = 0 };
 
     strview *lines = chr_split(in, "\n");
