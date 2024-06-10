@@ -16,6 +16,7 @@ set (source
     ${CMAKE_CURRENT_LIST_DIR}/src/darray.c
     ${CMAKE_CURRENT_LIST_DIR}/src/parsing.c
     ${CMAKE_CURRENT_LIST_DIR}/src/main.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/strview.c
 )
 
 message(" -=- Headers generated: ${headers} -=- ")
