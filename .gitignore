@@ -83,3 +83,5 @@ build/
 .cache/
 inputs/
 *.raddbg
+
+AoC2024.exe.manifest
