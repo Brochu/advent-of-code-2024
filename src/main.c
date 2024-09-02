@@ -5,6 +5,8 @@
 #include "day.h"
 #include "darray.h"
 
+#include "raylib.h"
+
 int main(int argc, char **argv) {
     printf("[MAIN] Trying my hand at C??\n");
 
@@ -22,5 +24,14 @@ int main(int argc, char **argv) {
     if (argc > 1 && strcmp(argv[1], "--test") == 0) {
         _arr_tests();
     }
+
+    InitWindow(800, 600, "AWWWW yea!");
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+        EndDrawing();
+    }
+    CloseWindow();
+
     return 0;
 }

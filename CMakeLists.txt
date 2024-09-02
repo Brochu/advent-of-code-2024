@@ -19,6 +19,11 @@ set (source
     ${CMAKE_CURRENT_LIST_DIR}/src/strview.c
 )
 
+set (libs
+    raylib.lib
+    WinMM.lib
+)
+
 message(" -=- Headers generated: ${headers} -=- ")
 message(" -=- Source generated: ${source} -=- ")
 
@@ -27,6 +32,11 @@ add_executable (AoC2024 ${source} ${headers})
 target_include_directories(AoC2024
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/include
+        ${CMAKE_CURRENT_LIST_DIR}/include/raylib
+)
+target_link_directories(AoC2024
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/libs
 )
 set_target_properties(AoC2024
     PROPERTIES
@@ -37,3 +47,4 @@ target_compile_definitions(AoC2024
     PRIVATE
     DAY=${DAY}
 )
+target_link_libraries(AoC2024 ${libs})
