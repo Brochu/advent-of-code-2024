@@ -25,13 +25,15 @@ int main(int argc, char **argv) {
         _arr_tests();
     }
 
-    InitWindow(800, 600, "AWWWW yea!");
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        EndDrawing();
+    if (argc > 1 && strcmp(argv[1], "--raylib") == 0) {
+        InitWindow(800, 600, "AWWWW yea!");
+        while (!WindowShouldClose()) {
+            BeginDrawing();
+            ClearBackground(BLACK);
+            EndDrawing();
+        }
+        CloseWindow();
     }
-    CloseWindow();
 
     return 0;
 }
