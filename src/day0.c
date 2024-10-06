@@ -26,12 +26,12 @@ void debug_grid(grid *g) {
 
 int part1(grid *g, char *out) {
     debug_grid(g);
-    sprintf_s(out, RES_MAX_LENGTH, "%d", 69);
+    print_res(out, "%d", 69);
     return 0;
 }
 
 int part2(grid *g, char *out) {
-    sprintf_s(out, RES_MAX_LENGTH, "%d", 420);
+    print_res(out, "%d", 420);
     return 0;
 }
 
