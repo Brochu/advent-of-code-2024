@@ -12,11 +12,15 @@ solutions: []day_proc = {
     d0run,
     d1run,
     d2run,
+    d3run,
 };
 
 main :: proc() {
     day, valid := which_day();
-    if (!valid) { return; }
+    if (!valid) {
+        fmt.printfln("[AoC22] Solution for day %v is not implemented yet", day);
+        return;
+    }
 
     arena : virtual.Arena;
     palloc : mem.Allocator;
@@ -62,5 +66,5 @@ which_day :: proc() -> (int, bool) {
         return 0, false;
     }
     day := strconv.atoi(pinfo.command_args[1]);
-    return day, true;
+    return day, ((day < len(solutions)) ? true : false);
 }
