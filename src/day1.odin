@@ -4,11 +4,23 @@ import "core:strings"
 import "core:strconv"
 import "core:slice"
 
-d1run :: proc (p1, p2: ^strings.Builder) {
-    when 0 == 1 { input :: #load("../data/day1.example") }
-    else { input :: #load("../data/day1.input") }
+when 1 == 1 {
+    @(private="file")
+    input_file :: "../data/day1.example"
+}
+else {
+    @(private="file")
+    input_file :: "../data/day1.input"
+}
+
+d1run :: proc () {
+    input := #load(input_file);
+
     elves := strings.split(string(input), "\r\n\r\n");
+    defer delete(elves);
+
     packs := make([]int, len(elves));
+    defer delete(packs);
 
     //fmt.printfln("elves count: %d", len(elves));
     for e, i in elves {
@@ -20,20 +32,4 @@ d1run :: proc (p1, p2: ^strings.Builder) {
         //fmt.printfln("\ntotal: %d\n--------------------", packs[i]);
     }
 
-    part1(packs, p1);
-    part2(packs, p2);
-
-    delete(packs);
-    delete(elves);
-}
-
-@(private="file")
-part1 :: proc (packs : []int, out: ^strings.Builder) {
-    slice.reverse_sort(packs);
-    strings.write_int(out, packs[0]);
-}
-
-@(private="file")
-part2 :: proc (packs : []int, out: ^strings.Builder) {
-    strings.write_int(out, packs[0] + packs[1] + packs[2]);
 }

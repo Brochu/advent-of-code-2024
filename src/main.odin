@@ -7,13 +7,10 @@ import os "core:os/os2"
 import "core:strconv"
 import "core:strings"
 
-day_proc :: proc(^strings.Builder, ^strings.Builder)
+day_proc :: proc()
 solutions: []day_proc = {
     d0run,
     d1run,
-    d2run,
-    d3run,
-    d4run,
 };
 
 main :: proc() {
@@ -32,21 +29,9 @@ main :: proc() {
         virtual.arena_destroy(&arena);
     }
 
-    b1, b1err := strings.builder_make(0, 512);
-    b2, b2err := strings.builder_make(0, 512);
-    if (b1err != nil || b2err != nil) {
-        fmt.println("[AoC22] Could not allocate result buffers");
-        return;
-    }
-    defer strings.builder_destroy(&b1);
-    defer strings.builder_destroy(&b2);
-
     fmt.printfln("[AoC22] Day %v", day);
-    solutions[day](&b1, &b2);
+    solutions[day]();
     //TODO: Setup timer to check processing time
-
-    fmt.printfln(" > Part 1 = %v", strings.to_string(b1));
-    fmt.printfln(" > Part 2 = %v", strings.to_string(b2));
 }
 
 which_day :: proc() -> (int, bool) {
