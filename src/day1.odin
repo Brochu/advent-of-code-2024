@@ -1,35 +1,56 @@
 package main
+import "core:c"
 import "core:fmt"
-import "core:strings"
 import "core:strconv"
-import "core:slice"
+import "core:strings"
+import rl "vendor:raylib"
 
-when 1 == 1 {
-    @(private="file")
-    input_file :: "../data/day1.example"
+when 0 == 1 {
+    @(private="file") input_file :: "../data/day1.example"
 }
 else {
-    @(private="file")
-    input_file :: "../data/day1.input"
+    @(private="file") input_file :: "../data/day1.input"
 }
 
 d1run :: proc () {
-    input := #load(input_file);
+    input :: string(#load(input_file));
+    groups := strings.split(input[:len(input)-2], "\r\n\r\n");
+    defer delete(groups);
 
-    elves := strings.split(string(input), "\r\n\r\n");
-    defer delete(elves);
+    xoffset : int = 25
+    yoffset : int = 25
+    xspace : int = 100
+    yspace : int = 25
 
-    packs := make([]int, len(elves));
-    defer delete(packs);
+    max := 0;
 
-    //fmt.printfln("elves count: %d", len(elves));
-    for e, i in elves {
-        //fmt.println("GROUP:");
-        cals := strings.split(e, "\r\n");
-        for c in cals {
-            packs[i] += strconv.atoi(c);
+    for !rl.WindowShouldClose() {
+        rl.BeginDrawing();
+        rl.ClearBackground(rl.BLACK);
+
+        for g, i in groups {
+            elves := strings.split_lines(g);
+            defer delete(elves);
+
+            total := 0;
+            for e, j in elves {
+                xoff := xoffset + (i*xspace);
+                yoff := yoffset + (j*yspace);
+                rl.DrawText(strings.clone_to_cstring(e), c.int(xoff), c.int(yoff), 25, rl.GREEN);
+                val := strconv.atoi(e);
+                total += val;
+            }
+
+            xtotal := c.int(xoffset + (i*xspace));
+            ytotal := c.int(yoffset + (len(elves)*yspace));
+            rl.DrawText(rl.TextFormat("%i", total), xtotal, ytotal, 25, rl.RED);
+
+            if (max < total) {
+                max = total;
+            }
         }
-        //fmt.printfln("\ntotal: %d\n--------------------", packs[i]);
-    }
+        rl.DrawText(rl.TextFormat("%i", max), 650, 550, 25, rl.BLUE);
 
+        rl.EndDrawing();
+    }
 }

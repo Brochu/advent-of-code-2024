@@ -6,6 +6,7 @@ import "core:mem/virtual"
 import os "core:os/os2"
 import "core:strconv"
 import "core:strings"
+import rl "vendor:raylib"
 
 day_proc :: proc()
 solutions: []day_proc = {
@@ -17,7 +18,7 @@ main :: proc() {
     day, valid := which_day();
     if (!valid) {
         fmt.printfln("[AoC22] Solution for day %v is not implemented yet", day);
-        return;
+        os.exit(-1);
     }
 
     arena : virtual.Arena;
@@ -29,9 +30,16 @@ main :: proc() {
         virtual.arena_destroy(&arena);
     }
 
-    fmt.printfln("[AoC22] Day %v", day);
+    title, err := strings.builder_make(0, 128);
+    defer strings.builder_destroy(&title);
+    fmt.sbprintf(&title, "[AoC22] - Day %v", day);
+
+    rl.InitWindow(800, 600, strings.to_cstring(&title));
+    rl.SetTargetFPS(60);
     solutions[day]();
     //TODO: Setup timer to check processing time
+
+    rl.CloseWindow();
 }
 
 which_day :: proc() -> (int, bool) {
@@ -49,7 +57,7 @@ which_day :: proc() -> (int, bool) {
 
     if (len(pinfo.command_args) < 2) {
         fmt.println("[AoC22] usage: aoc22.exe <daynum>");
-        return 0, false;
+        os.exit(-1);
     }
     day := strconv.atoi(pinfo.command_args[1]);
     return day, ((day < len(solutions)) ? true : false);
