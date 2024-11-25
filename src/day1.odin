@@ -1,6 +1,7 @@
 package main
 import "core:c"
 import "core:fmt"
+import "core:slice"
 import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
@@ -22,7 +23,7 @@ d1run :: proc () {
     xspace : int = 100
     yspace : int = 25
 
-    max := 0;
+    totals := make([]int, len(groups));
 
     for !rl.WindowShouldClose() {
         rl.BeginDrawing();
@@ -45,11 +46,12 @@ d1run :: proc () {
             ytotal := c.int(yoffset + (len(elves)*yspace));
             rl.DrawText(rl.TextFormat("%i", total), xtotal, ytotal, 25, rl.RED);
 
-            if (max < total) {
-                max = total;
-            }
+            totals[i] = total;
         }
-        rl.DrawText(rl.TextFormat("%i", max), 650, 550, 25, rl.BLUE);
+        slice.reverse_sort(totals);
+        rl.DrawText(rl.TextFormat("%i", totals[0]), 350, 550, 25, rl.BLUE);
+        p2 := totals[0] + totals[1] + totals[2];
+        rl.DrawText(rl.TextFormat("%i", p2), 650, 550, 25, rl.BLUE);
 
         rl.EndDrawing();
     }
