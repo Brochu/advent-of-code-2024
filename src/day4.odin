@@ -1,8 +1,18 @@
 package main
+import "core:c"
 import "core:fmt"
 import "core:strings"
 import "core:strconv"
+import rl "vendor:raylib"
 
+when EXAMPLE {
+    @(private="file") input_file :: "../data/day4.example"
+}
+else {
+    @(private="file") input_file :: "../data/day4.input"
+}
+
+@(private="file")
 Pair :: struct {
     e0min : int,
     e0max : int,
@@ -10,41 +20,43 @@ Pair :: struct {
     e1max : int,
 }
 
-d4run :: proc (p1, p2: ^strings.Builder) {
-    when 1 == 1 { input :: #load("../data/day4.example") }
-    else { input :: #load("../data/day4.input") }
+d4run :: proc () {
+    input :: string(#load(input_file));
 
-    pairs := make([dynamic]Pair);
-    defer delete(pairs);
-
-    strin := string(input);
-    lines := strings.split_lines(strin[:len(strin)-1]); // ARK
+    lines := strings.split_lines(input[:len(input)-1]); // ARK
     defer delete(lines);
 
-    for line in lines {
-        p : Pair;
+    pairs := make([]Pair, len(lines));
+    defer delete(pairs);
+
+    for line, i in lines {
         mid := strings.index(line, ",");
         fmid := strings.index(line[:mid], "-");
-        p.e0min = strconv.atoi(line[:fmid]);
-        p.e0max = strconv.atoi(line[fmid+1:mid]);
+        pairs[i].e0min = strconv.atoi(line[:fmid]);
+        pairs[i].e0max = strconv.atoi(line[fmid+1:mid]);
 
         smid := strings.index(line[mid+1:], "-");
-        p.e1min = strconv.atoi(line[mid+1:][:smid]);
-        p.e1max = strconv.atoi(line[mid+1:][smid+1:]);
-        append(&pairs, p);
+        pairs[i].e1min = strconv.atoi(line[mid+1:][:smid]);
+        pairs[i].e1max = strconv.atoi(line[mid+1:][smid+1:]);
     }
 
-    part1(pairs[:], p1);
-    part2(pairs[:], p2);
-}
+    yoffset := 25;
+    yspace := 65;
+    zoom := 10;
+    for !rl.WindowShouldClose() {
+        rl.BeginDrawing();
+        rl.ClearBackground(rl.BLACK);
 
-@(private="file")
-part1 :: proc (pairs: []Pair, out: ^strings.Builder) {
-    fmt.printfln("%v", pairs);
-    strings.write_u64(out, 1);
-}
+        for pair, i in pairs {
+            y := c.int(yoffset + (i*yspace));
+            width := c.int(pair.e0max*zoom - pair.e0min*zoom) + 1;
+            height := c.int(15);
+            rl.DrawRectangle(c.int(pair.e0min*zoom), y, width, height, rl.RED);
 
-@(private="file")
-part2 :: proc (pairs: []Pair, out: ^strings.Builder) {
-    strings.write_u64(out, 2);
+            width = c.int(pair.e1max*zoom - pair.e1min*zoom) + 1;
+            rl.DrawRectangle(c.int(pair.e1min*zoom), y+16, width, height, rl.GREEN);
+        }
+
+        rl.EndDrawing();
+    }
 }
