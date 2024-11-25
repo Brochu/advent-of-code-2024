@@ -8,6 +8,8 @@ import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
 
+EXAMPLE :: #config(EXAMPLE, false)
+
 day_proc :: proc()
 solutions: []day_proc = {
     d0run,

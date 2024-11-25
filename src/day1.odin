@@ -7,7 +7,7 @@ import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
 
-when 0 == 1 {
+when EXAMPLE {
     @(private="file") input_file :: "../data/day1.example"
 }
 else {

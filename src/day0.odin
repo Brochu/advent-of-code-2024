@@ -3,7 +3,7 @@ import "core:fmt"
 import "core:strings"
 import rl "vendor:raylib"
 
-when 1 == 1 {
+when EXAMPLE {
     @(private="file") input_file :: "../data/day0.example"
 }
 else {
