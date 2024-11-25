@@ -4,18 +4,27 @@ import "core:strings"
 import ba"core:container/bit_array"
 import "base:intrinsics"
 
-d3run :: proc (p1, p2: ^strings.Builder) {
-    when 0 == 1 { input :: #load("../data/day3.example") }
-    else { input :: #load("../data/day3.input") }
-    lines := strings.split_lines(string(input));
+when EXAMPLE {
+    @(private="file") input_file :: "../data/day3.example"
+}
+else {
+    @(private="file") input_file :: "../data/day3.input"
+}
+
+d3run :: proc () {
+    input :: string(#load(input_file));
+    lines := strings.split_lines(input);
     defer delete(lines);
 
-    part1(lines, p1);
-    part2(lines, p2);
+    p1 := part1(lines);
+    p2 := part2(lines);
+
+    fmt.printfln("PART 1 = %v", p1);
+    fmt.printfln("PART 2 = %v", p2);
 }
 
 @(private="file")
-part1 :: proc (lines: []string, out: ^strings.Builder) {
+part1 :: proc (lines: []string) -> u64 {
     total : u64 = 0;
     for l in lines {
         str := transmute([]byte)l;
@@ -41,11 +50,11 @@ part1 :: proc (lines: []string, out: ^strings.Builder) {
         //fmt.printfln("%v (%v); value = %v", idx, rune(idx), val);
         total += val;
     }
-    strings.write_u64(out, total);
+    return total;
 }
 
 @(private="file")
-part2 :: proc (lines: []string, out: ^strings.Builder) {
+part2 :: proc (lines: []string) -> u64 {
     total : u64 = 0;
 
     for i := 0; i < len(lines); i += 3 {
@@ -71,5 +80,5 @@ part2 :: proc (lines: []string, out: ^strings.Builder) {
         //fmt.printfln("%v (%v); value = %v", idx, rune(idx), val);
         total += val;
     }
-    strings.write_u64(out, total);
+    return total;
 }

@@ -15,6 +15,7 @@ solutions: []day_proc = {
     d0run,
     d1run,
     d2run,
+    d3run,
 };
 
 main :: proc() {
