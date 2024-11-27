@@ -6,7 +6,6 @@ import "core:mem/virtual"
 import os "core:os/os2"
 import "core:strconv"
 import "core:strings"
-import rl "vendor:raylib"
 
 EXAMPLE :: #config(EXAMPLE, false)
 
@@ -18,6 +17,7 @@ solutions: []day_proc = {
     d3run,
     d4run,
 };
+title : strings.Builder;
 
 main :: proc() {
     day, valid := which_day();
@@ -35,16 +35,11 @@ main :: proc() {
         virtual.arena_destroy(&arena);
     }
 
-    title, err := strings.builder_make(0, 128);
+    title, _ = strings.builder_make(0, 128);
     defer strings.builder_destroy(&title);
     fmt.sbprintf(&title, "[AoC22] - Day %v", day);
 
-    rl.InitWindow(800, 600, strings.to_cstring(&title));
-    rl.SetTargetFPS(60);
     solutions[day]();
-    //TODO: Setup timer to check processing time
-
-    rl.CloseWindow();
 }
 
 which_day :: proc() -> (int, bool) {

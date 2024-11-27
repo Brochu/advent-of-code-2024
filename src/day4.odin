@@ -43,6 +43,9 @@ d4run :: proc () {
     yoffset := 25;
     yspace := 65;
     zoom := 10;
+
+    rl.InitWindow(800, 600, strings.to_cstring(&title));
+    rl.SetTargetFPS(60);
     for !rl.WindowShouldClose() {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
@@ -59,4 +62,5 @@ d4run :: proc () {
 
         rl.EndDrawing();
     }
+    rl.CloseWindow();
 }

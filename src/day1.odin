@@ -53,6 +53,9 @@ d1run :: proc () {
     time : int = 1;
 
     fnum := 0;
+
+    rl.InitWindow(800, 600, strings.to_cstring(&title));
+    rl.SetTargetFPS(60);
     for !rl.WindowShouldClose() {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
@@ -90,4 +93,6 @@ d1run :: proc () {
         rl.DrawText(rl.TextFormat("%i", fnum), 0, 575, 15, rl.WHITE);
         rl.EndDrawing();
     }
+
+    rl.CloseWindow();
 }
