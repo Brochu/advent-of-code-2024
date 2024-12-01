@@ -11,7 +11,8 @@ else {
 }
 
 d0run :: proc () {
-    //input := #load(input_file);
+    //input := strings.trim(string(#load(input_file)), "\r\n");
+    //fmt.println(input);
 
     rl.InitWindow(800, 600, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
