@@ -39,8 +39,8 @@ d1run :: proc () {
     total := 0;
     last := len(first)-1;
     for last >= 0 {
-        heap.pop(first[:last], comp);
-        heap.pop(second[:last], comp);
+        heap.pop(first[:last+1], comp);
+        heap.pop(second[:last+1], comp);
 
         l := first[last];
         r := second[last];
@@ -52,22 +52,18 @@ d1run :: proc () {
     }
     fmt.printfln("\tPART 1 = %v", total);
 
-    // Reset the heaps
-    heap.make(first, comp);
-    heap.make(second, comp);
-
-    curr := len(second)-1;
-    for !slice.is_empty(first) {
-        heap.pop(first, comp);
-        l := first[len(first)-1];
-        first = first[:len(first)-1];
-
-        fmt.printfln("l = %v", l);
-        //TODO: Find matching and count, when done, next l value
+    // ---------------------------------------------------
+    hash, _ := make(map[int]int);
+    for r in second {
+        hash[r] += 1;
     }
+    //fmt.printfln("%v", hash);
 
-    p2 := 0;
-    fmt.printfln("\tPART 2 = %v", p2);
+    simlevel := 0
+    for l in first {
+        simlevel += hash[l] * l;
+    }
+    fmt.printfln("\tPART 2 = %v", simlevel);
 }
 
 @(private="file")
