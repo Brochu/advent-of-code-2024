@@ -18,7 +18,7 @@ title : strings.Builder;
 main :: proc() {
     day, valid := which_day();
     if (!valid) {
-        fmt.printfln("[AoC22] Solution for day %v is not implemented yet", day);
+        fmt.printfln("[AoC24] Solution for day %v is not implemented yet", day);
         os.exit(-1);
     }
 
@@ -33,7 +33,7 @@ main :: proc() {
 
     title, _ = strings.builder_make(0, 128);
     defer strings.builder_destroy(&title);
-    fmt.sbprintf(&title, "[AoC22] - Day %v", day);
+    fmt.sbprintf(&title, "[AoC24] - Day %v", day);
 
     solutions[day]();
 }
@@ -45,14 +45,14 @@ which_day :: proc() -> (int, bool) {
     pinfo, _ := os.current_process_info(fields, context.allocator);
     defer os.free_process_info(pinfo, context.allocator);
     /*
-    fmt.println("[AoC22] Process Info :");
+    fmt.println("[AoC24] Process Info :");
     fmt.printfln(" - pid = %v", pinfo.pid);
     fmt.printfln(" - cmdargs = %v", pinfo.command_args);
     fmt.println("--------------------\n");
     */
 
     if (len(pinfo.command_args) < 2) {
-        fmt.println("[AoC22] usage: aoc22.exe <daynum>");
+        fmt.println("[AoC24] usage: aoc24.exe <daynum>");
         os.exit(-1);
     }
     day := strconv.atoi(pinfo.command_args[1]);
