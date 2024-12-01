@@ -12,6 +12,7 @@ EXAMPLE :: #config(EXAMPLE, false)
 day_proc :: proc()
 solutions: []day_proc = {
     d0run,
+    d1run,
 };
 title : strings.Builder;
 
