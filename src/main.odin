@@ -9,7 +9,7 @@ import "core:strings"
 
 EXAMPLE :: #config(EXAMPLE, false)
 
-day_proc :: proc()
+day_proc :: proc(p1, p2: ^strings.Builder)
 solutions: []day_proc = {
     d0run,
     d1run,
@@ -36,8 +36,15 @@ main :: proc() {
     defer strings.builder_destroy(&title);
     fmt.sbprintf(&title, "[AoC24] - Day %v", day);
 
+    part1, _ := strings.builder_make(0, 256);
+    part2, _ := strings.builder_make(0, 256);
+    defer strings.builder_destroy(&part1);
+    defer strings.builder_destroy(&part2);
+
+    solutions[day](&part1, &part2);
     fmt.printfln("[AoC24] Solving Day %v", day);
-    solutions[day]();
+    fmt.printfln(" Part1 -> %v", strings.to_string(part1));
+    fmt.printfln(" Part2 -> %v", strings.to_string(part2));
 }
 
 which_day :: proc() -> (int, bool) {

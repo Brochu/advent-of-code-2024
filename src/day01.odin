@@ -14,7 +14,7 @@ else {
     @(private="file") input_file :: "../data/day01.in"
 }
 
-d1run :: proc () {
+d1run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(string(#load(input_file)), "\r\n");
 
     lines, _ := strings.split_lines(input);
@@ -50,7 +50,7 @@ d1run :: proc () {
 
         last -= 1;
     }
-    fmt.printfln("\tPART 1 = %v", total);
+    strings.write_int(p1, total);
 
     // ---------------------------------------------------
     hash, _ := make(map[int]int);
@@ -63,7 +63,7 @@ d1run :: proc () {
     for l in first {
         simlevel += hash[l] * l;
     }
-    fmt.printfln("\tPART 2 = %v", simlevel);
+    strings.write_int(p2, simlevel);
 }
 
 @(private="file")

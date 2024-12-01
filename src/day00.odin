@@ -10,7 +10,7 @@ else {
     @(private="file") input_file :: "../data/day0.in"
 }
 
-d0run :: proc () {
+d0run :: proc (p1, p2: ^strings.Builder) {
     //input := strings.trim(string(#load(input_file)), "\r\n");
     //fmt.println(input);
 
@@ -24,4 +24,7 @@ d0run :: proc () {
         rl.EndDrawing();
     }
     rl.CloseWindow();
+
+    strings.write_int(p1, 1);
+    strings.write_int(p2, 2);
 }
