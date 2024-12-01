@@ -36,6 +36,7 @@ main :: proc() {
     defer strings.builder_destroy(&title);
     fmt.sbprintf(&title, "[AoC24] - Day %v", day);
 
+    fmt.printfln("[AoC24] Solving Day %v", day);
     solutions[day]();
 }
 
