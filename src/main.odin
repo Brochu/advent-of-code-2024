@@ -13,6 +13,7 @@ day_proc :: proc(p1, p2: ^strings.Builder)
 solutions: []day_proc = {
     d0run,
     d1run,
+    d2run,
 };
 title : strings.Builder;
 
