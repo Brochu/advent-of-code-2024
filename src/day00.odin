@@ -4,10 +4,10 @@ import "core:strings"
 import rl "vendor:raylib"
 
 when EXAMPLE {
-    @(private="file") input_file :: "../data/day0.ex"
+    @(private="file") input_file :: "../data/day00.ex"
 }
 else {
-    @(private="file") input_file :: "../data/day0.in"
+    @(private="file") input_file :: "../data/day00.in"
 }
 
 d0run :: proc (p1, p2: ^strings.Builder) {
