@@ -1,4 +1,5 @@
 package main
+import "core:c"
 import "core:fmt"
 import "core:math"
 import "core:slice"
@@ -64,6 +65,40 @@ d1run :: proc (p1, p2: ^strings.Builder) {
         simlevel += hash[l] * l;
     }
     strings.write_int(p2, simlevel);
+
+    heap.make(first, comp);
+    heap.sort(first, comp);
+    slice.reverse(first);
+    heap.make(second, comp);
+    heap.sort(second, comp);
+    slice.reverse(second);
+
+    time := 1;
+    fnum := 0;
+    rl.InitWindow(800, 600, strings.to_cstring(&title));
+    rl.SetTargetFPS(60);
+
+    for !rl.WindowShouldClose() {
+        rl.BeginDrawing();
+        rl.ClearBackground(rl.BLACK);
+        curr := fnum/time;
+
+        for vi, i in curr..<len(lines) {
+            y := c.int(25 + (i * 25));
+            rl.DrawText(rl.TextFormat("%v -- %v", first[vi], second[vi]), 100, y, 20, rl.BLUE);
+        }
+
+        if curr > 0 {
+            rl.DrawText(rl.TextFormat("%v -- %v", first[curr-1], second[curr-1]), 350, 25, 40, rl.GREEN);
+            rl.DrawText(rl.TextFormat("%v", math.abs(first[curr-1] - second[curr-1])), 350, 75, 40, rl.RED);
+        }
+
+        rl.DrawText(rl.TextFormat("%v", fnum), 25, 575, 5, rl.WHITE);
+
+        rl.EndDrawing();
+        fnum = math.clamp(fnum+1, 0, time*len(lines));
+    }
+    rl.CloseWindow();
 }
 
 @(private="file")
