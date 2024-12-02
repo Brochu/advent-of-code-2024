@@ -30,6 +30,7 @@ main :: proc() {
     palloc, context.allocator = context.allocator, virtual.arena_allocator(&arena);
     defer {
         context.allocator  = palloc;
+        virtual.arena_free_all(&arena);
         virtual.arena_destroy(&arena);
     }
 
