@@ -3,12 +3,8 @@ import "core:fmt"
 import "core:strings"
 import rl "vendor:raylib"
 
-when EXAMPLE {
-    @(private="file") input_file :: "../data/day00.ex"
-}
-else {
-    @(private="file") input_file :: "../data/day00.in"
-}
+@(private="file")
+input_file :: "../data/day00.ex" when EXAMPLE else "../data/day00.in"
 
 d0run :: proc (p1, p2: ^strings.Builder) {
     //input := strings.trim(string(#load(input_file)), "\r\n");

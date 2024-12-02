@@ -8,12 +8,8 @@ import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
 
-when EXAMPLE {
-    @(private="file") input_file :: "../data/day01.ex"
-}
-else {
-    @(private="file") input_file :: "../data/day01.in"
-}
+@(private="file")
+input_file :: "../data/day01.ex" when EXAMPLE else "../data/day01.in"
 
 d1run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(string(#load(input_file)), "\r\n");
