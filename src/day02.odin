@@ -1,4 +1,5 @@
 package main
+import "core:c"
 import "core:fmt"
 import "core:math"
 import "core:slice"
@@ -56,7 +57,8 @@ d2run :: proc (p1, p2: ^strings.Builder) {
     //fmt.println("---------------");
     //fmt.printfln("%v", valid_counts_p2);
 
-    /*
+    time := 1;
+    fnum := 0;
     rl.InitWindow(800, 600, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
 
@@ -64,10 +66,26 @@ d2run :: proc (p1, p2: ^strings.Builder) {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
+        curr := fnum / time;
+        for r, i in reports[curr:] {
+            y := c.int(75 + (i * 25));
+            rl.DrawText(rl.TextFormat("%v", r.display_levels), 225, y, 25, rl.BLUE);
+        }
+        if (curr > 0) {
+            col_p1 := rl.GREEN if reports[curr-1].valid_p1 else rl.RED;
+            col_p2 := rl.GREEN if reports[curr-1].valid_p2 else rl.RED;
+            rl.DrawText(rl.TextFormat("%v", reports[curr-1].display_levels), 5, 25, 30, col_p1);
+            rl.DrawText(rl.TextFormat("%v", reports[curr-1].display_levels), 800-350, 25, 30, col_p2);
+
+            rl.DrawText(rl.TextFormat("%v", valid_counts_p1[curr-1]), 5, 250, 30, rl.BLUE);
+            rl.DrawText(rl.TextFormat("%v", valid_counts_p2[curr-1]), 800-250, 250, 30, rl.BLUE);
+        }
+
+        rl.DrawText(rl.TextFormat("%v", fnum), 15, 600-15, 10, rl.WHITE);
         rl.EndDrawing();
+        fnum = math.clamp(fnum+1, 0, (len(reports) * time));
     }
     rl.CloseWindow();
-    */
 
     strings.write_int(p1, valid_counts_p1[len(valid_counts_p1)-1]);
     strings.write_int(p2, valid_counts_p2[len(valid_counts_p2)-1]);
