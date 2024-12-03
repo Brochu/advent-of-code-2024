@@ -1,4 +1,5 @@
 package main
+import "core:c"
 import "core:fmt"
 import "core:strings"
 import rl "vendor:raylib"
