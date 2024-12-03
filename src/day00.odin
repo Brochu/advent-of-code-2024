@@ -8,8 +8,8 @@ import rl "vendor:raylib"
 input_file :: "../data/day00.ex" when EXAMPLE else "../data/day00.in"
 
 d0run :: proc (p1, p2: ^strings.Builder) {
-    //input := strings.trim(string(#load(input_file)), "\r\n");
-    //fmt.println(input);
+    input := strings.trim(#load(input_file, string) or_else "", "\r\n");
+    fmt.println(input);
 
     rl.InitWindow(800, 600, strings.to_cstring(&title));
     rl.SetTargetFPS(60);

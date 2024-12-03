@@ -12,7 +12,7 @@ import rl "vendor:raylib"
 input_file :: "../data/day01.ex" when EXAMPLE else "../data/day01.in"
 
 d1run :: proc (p1, p2: ^strings.Builder) {
-    input := strings.trim(string(#load(input_file)), "\r\n");
+    input := strings.trim(#load(input_file, string), "\r\n");
 
     lines, _ := strings.split_lines(input);
     defer delete(lines);

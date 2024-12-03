@@ -8,7 +8,7 @@ import rl "vendor:raylib"
 input_file :: "../data/day03.ex" when EXAMPLE else "../data/day03.in"
 
 d3run :: proc (p1, p2: ^strings.Builder) {
-    input := strings.trim(string(#load(input_file)), "\r\n");
+    input := strings.trim(#load(input_file, string), "\r\n");
     lines := strings.split_lines(input);
     fmt.printfln("[%v]\n%v", len(lines), lines);
 
