@@ -114,9 +114,7 @@ check_marker :: proc(curr: string) -> (string, int, int, bool) {
                 f *= 10;
                 f += int(curr[i] - '0');
             }
-            else {
-                state = .Invalid;
-            }
+            else do state = .Invalid;
 
         case .SecondNum:
             if curr[i] == ')' {
@@ -126,17 +124,13 @@ check_marker :: proc(curr: string) -> (string, int, int, bool) {
                 s *= 10;
                 s += int(curr[i] - '0');
             }
-            else {
-                state = .Invalid;
-            }
+            else do state = .Invalid;
 
         case .Invalid:
             return "", -1, -1, false;
         }
 
-        if state == .Done {
-            break;
-        }
+        if state == .Done do break;
         i += 1;
     }
     return curr[:i+1], f, s, true;
