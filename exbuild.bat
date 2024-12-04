@@ -1,3 +1,3 @@
 @echo off
 
-odin build .\src\ -define:EXAMPLE=true -out:AoC2024.exe
+odin build .\src\ -debug -define:EXAMPLE=true -out:AoC2024.exe
