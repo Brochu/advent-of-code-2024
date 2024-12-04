@@ -4,10 +4,10 @@ SET example=""
 
 :: Loop through all arguments
 for %%A in (%*) do (
-    if "%%A"=="-debug" (
+    if "%%A"=="-d" (
         set debug="-debug"
     )
-    if "%%A"=="-example" (
+    if "%%A"=="-ex" (
         set example="-define:EXAMPLE=true"
     )
 )
