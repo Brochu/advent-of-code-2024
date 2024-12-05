@@ -17,16 +17,15 @@ DIRS :: [8]Vec2 {
     { -1,  1 }, {  0,  1 }, {  1,  1 },
 };
 
-CROSS :: [4]Vec2 {
-    { -1, -1 }, {  1, -1 },
-    { -1,  1 }, {  1,  1 },
-};
-
 letters := [4]u8 { 'X', 'M', 'A', 'S' };
 
-Node :: struct {
+Node_p1 :: struct {
     pos: [4]Vec2,
     len: int,
+}
+
+Node_p2 :: struct {
+    pos: [5]Vec2,
 }
 
 DIM := 0;
@@ -39,7 +38,7 @@ get_coords :: proc(idx: int) -> Vec2 {
         idx / DIM,
     };
 }
-get_neighbours :: proc(n: Node) -> [dynamic]Vec2 {
+get_neighbours :: proc(n: Node_p1) -> [dynamic]Vec2 {
     ns := make([dynamic]Vec2, 0, len(DIRS));
 
     if n.len == 1 {
@@ -65,19 +64,39 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     lines := strings.split_lines(input);
     DIM = len(lines);
 
-    Q: queue.Queue(Node);
+    Q: queue.Queue(Node_p1);
     queue.init(&Q, DIM * DIM);
     grid := transmute([]u8)strings.join(lines, "");
-    matches_p1 := make([dynamic]Node, 0, DIM*DIM);
-    matches_p2 := make([dynamic]Node, 0, DIM*DIM);
+    matches_p1 := make([dynamic]Node_p1, 0, DIM*DIM);
+    matches_p2 := make([dynamic]Node_p2, 0, DIM*DIM);
 
     for y in 0..<DIM {
         for x in 0..<DIM {
-            idx := get_idx(Vec2 {x, y});
+            coord := Vec2 { x, y };
+            idx := get_idx(coord);
             //fmt.printf("%v ", rune(grid[idx]));
 
             if grid[idx] == 'X' {
-                queue.push_back(&Q, Node { { {x, y}, {}, {}, {} }, 1 });
+                queue.push_back(&Q, Node_p1 { { coord, {}, {}, {} }, 1 });
+            }
+            else if grid[idx] == 'A' {
+                if node, ok := cross_check(grid, coord); ok {
+                    //fmt.printfln("[%v] %v - %v | %v", idx, coord, rune(grid[idx]), node.pos);
+                    ms := 0;
+                    ss := 0;
+                    for e in node.pos {
+                        if grid[get_idx(e)] == 'M' {
+                            ms += 1;
+                        }
+                        else if grid[get_idx(e)] == 'S' {
+                            ss += 1;
+                        }
+                    }
+
+                    if ms == 2 && ss == 2 && grid[get_idx(node.pos[1])] != grid[get_idx(node.pos[4])] {
+                        append(&matches_p2, node);
+                    }
+                }
             }
         }
         //fmt.println();
@@ -95,7 +114,7 @@ d4run :: proc (p1, p2: ^strings.Builder) {
                 idx := get_idx(n);
                 //fmt.printfln(" - %v -> %v == %v", n, grid[idx], letters[node.len]);
                 if grid[idx] == letters[node.len] {
-                    new := Node { node.pos, node.len };
+                    new := Node_p1 { node.pos, node.len };
                     new.pos[new.len] = n;
                     new.len += 1;
                     queue.push_back(&Q, new);
@@ -118,5 +137,26 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     */
 
     strings.write_int(p1, len(matches_p1));
-    strings.write_int(p2, 4);
+    strings.write_int(p2, len(matches_p2));
+}
+
+CROSS :: [4]Vec2 {
+    { -1, -1 }, {  1, -1 },
+    { -1,  1 }, {  1,  1 },
+};
+
+cross_check :: proc(grid: []u8, s: Vec2) -> (Node_p2, bool) {
+    idx := get_idx(s);
+
+    cs : [5]Vec2;
+    cs[0] = s;
+
+    for e, i in CROSS {
+        new := s + e;
+        if (new.x < 0 || new.x >= DIM) || (new.y < 0 || new.y >= DIM) {
+            return Node_p2 {}, false;
+        }
+        cs[i+1] = new;
+    }
+    return Node_p2 { cs }, true;
 }
