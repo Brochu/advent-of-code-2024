@@ -17,18 +17,16 @@ DIRS :: [8]Vec2 {
     { -1,  1 }, {  0,  1 }, {  1,  1 },
 };
 
-Letters :: enum  u8 {
-    X = 'X',
-    M = 'M',
-    A = 'A',
-    S = 'S'
+CROSS :: [4]Vec2 {
+    { -1, -1 }, {  1, -1 },
+    { -1,  1 }, {  1,  1 },
 };
-LSet :: bit_set[Letters];
+
+letters := [4]u8 { 'X', 'M', 'A', 'S' };
 
 Node :: struct {
     pos: [4]Vec2,
     len: int,
-    set: LSet,
 }
 
 DIM := 0;
@@ -41,13 +39,22 @@ get_coords :: proc(idx: int) -> Vec2 {
         idx / DIM,
     };
 }
-get_neighbours :: proc(pos: Vec2) -> [dynamic]Vec2 {
+get_neighbours :: proc(n: Node) -> [dynamic]Vec2 {
     ns := make([dynamic]Vec2, 0, len(DIRS));
 
-    for d in DIRS {
-        new := pos + d;
-        if (new.x >= 0 && new.x < DIM) && (new.y >= 0 && new.y < DIM) {
-            append(&ns, new);
+    if n.len == 1 {
+        for d in DIRS {
+            new := n.pos[n.len-1] + d;
+            if (new.x >= 0 && new.x < DIM) && (new.y >= 0 && new.y < DIM) {
+                append(&ns, new);
+            }
+        }
+    }
+    else if n.len <= 3 {
+        dir := n.pos[n.len-1] - n.pos[n.len-2];
+        n := n.pos[n.len-1] + dir;
+        if (n.x >= 0 && n.x < DIM) && (n.y >= 0 && n.y < DIM) {
+            append(&ns, n);
         }
     }
     return ns;
@@ -58,20 +65,43 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     lines := strings.split_lines(input);
     DIM = len(lines);
 
+    Q: queue.Queue(Node);
+    queue.init(&Q, DIM * DIM);
     grid := transmute([]u8)strings.join(lines, "");
+    matches_p1 := make([dynamic]Node, 0, DIM*DIM);
+    matches_p2 := make([dynamic]Node, 0, DIM*DIM);
+
     for y in 0..<DIM {
         for x in 0..<DIM {
             idx := get_idx(Vec2 {x, y});
-            //fmt.printf("%2v ", idx);
-            fmt.printf("%v ", transmute(Letters)grid[idx]);
+            //fmt.printf("%v ", rune(grid[idx]));
+
+            if grid[idx] == 'X' {
+                queue.push_back(&Q, Node { { {x, y}, {}, {}, {} }, 1 });
+            }
         }
-        fmt.println();
+        //fmt.println();
     }
 
-    matches := make([dynamic]Node, 0, DIM*DIM);
-    Q: queue.Queue(u8);
-    queue.init(&Q, DIM * DIM);
     for queue.len(Q) > 0 {
+        node := queue.pop_back(&Q);
+        //fmt.printfln("[PROC] %v", node);
+
+        if node.len >= 4 {
+            append(&matches_p1, node);
+        }
+        else {
+            for n in get_neighbours(node) {
+                idx := get_idx(n);
+                //fmt.printfln(" - %v -> %v == %v", n, grid[idx], letters[node.len]);
+                if grid[idx] == letters[node.len] {
+                    new := Node { node.pos, node.len };
+                    new.pos[new.len] = n;
+                    new.len += 1;
+                    queue.push_back(&Q, new);
+                }
+            }
+        }
     }
 
     /*
@@ -87,6 +117,6 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     rl.CloseWindow();
     */
 
-    strings.write_int(p1, 4);
+    strings.write_int(p1, len(matches_p1));
     strings.write_int(p2, 4);
 }
