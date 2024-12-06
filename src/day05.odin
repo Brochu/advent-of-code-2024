@@ -73,6 +73,7 @@ d5run :: proc (p1, p2: ^strings.Builder) {
 }
 
 is_valid_p1 :: proc(rules: map[int]PageSet, update: string) -> (int, bool) {
+    //TODO: Need to return nums for p2
     nums := make([dynamic]int);
     prev : PageSet;
 
