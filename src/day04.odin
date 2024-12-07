@@ -2,6 +2,8 @@ package main
 import "core:c"
 import "core:container/queue"
 import "core:fmt"
+import "core:math"
+import "core:slice"
 import "core:strings"
 import rl "vendor:raylib"
 
@@ -76,21 +78,15 @@ d4run :: proc (p1, p2: ^strings.Builder) {
             idx := get_idx(coord);
             //fmt.printf("%v ", rune(grid[idx]));
 
-            if grid[idx] == 'X' {
-                queue.push_back(&Q, Node_p1 { { coord, {}, {}, {} }, 1 });
-            }
+            if grid[idx] == 'X' do queue.push_back(&Q, Node_p1 { { coord, {}, {}, {} }, 1 });
             else if grid[idx] == 'A' {
                 if node, ok := cross_check(grid, coord); ok {
                     //fmt.printfln("[%v] %v - %v | %v", idx, coord, rune(grid[idx]), node.pos);
                     ms := 0;
                     ss := 0;
                     for e in node.pos {
-                        if grid[get_idx(e)] == 'M' {
-                            ms += 1;
-                        }
-                        else if grid[get_idx(e)] == 'S' {
-                            ss += 1;
-                        }
+                        if grid[get_idx(e)] == 'M' do ms += 1;
+                        else if grid[get_idx(e)] == 'S' do ss += 1;
                     }
 
                     if ms == 2 && ss == 2 && grid[get_idx(node.pos[1])] != grid[get_idx(node.pos[4])] {
@@ -106,9 +102,7 @@ d4run :: proc (p1, p2: ^strings.Builder) {
         node := queue.pop_back(&Q);
         //fmt.printfln("[PROC] %v", node);
 
-        if node.len >= 4 {
-            append(&matches_p1, node);
-        }
+        if node.len >= 4 do append(&matches_p1, node);
         else {
             for n in get_neighbours(node) {
                 idx := get_idx(n);
@@ -122,9 +116,14 @@ d4run :: proc (p1, p2: ^strings.Builder) {
             }
         }
     }
+    slice.reverse(matches_p2[:]);
 
     spacing := 50 when EXAMPLE else 5;
-    offset := 150 when EXAMPLE else 0;
+    xoff := 150 when EXAMPLE else 50;
+    yoff := 50 when EXAMPLE else 0;
+    font := 20 when EXAMPLE else 1;
+    fnum := 0;
+    time := 20 when EXAMPLE else 1;
     rl.InitWindow(800, 600, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
 
@@ -132,12 +131,46 @@ d4run :: proc (p1, p2: ^strings.Builder) {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
+        chosen := fnum/time;
+        c_p1 := math.min(chosen, len(matches_p1)-1);
+        c_p2 := math.min(chosen, len(matches_p2)-1);
+        rl.DrawText(rl.TextFormat("%i", c_p1+1), 15, 15, 5, rl.GREEN);
+        rl.DrawText(rl.TextFormat("%i", c_p2+1), 15, 50, 5, rl.BLUE);
+
+        m_p1 := matches_p1[c_p1];
+        high_p1 : [4]int;
+        for m, i in m_p1.pos {
+            c := m_p1.pos[i]
+            high_p1[i] = (c.y * DIM) + c.x;
+        }
+        slice.sort(high_p1[:]);
+        m_p2 := matches_p2[c_p2];
+        high_p2 : [5]int;
+        for m, j in m_p2.pos {
+            c := m_p2.pos[j]
+            high_p2[j] = (c.y * DIM) + c.x;
+        }
+        slice.sort(high_p2[:]);
+
         for elem, i in grid {
-            x, y := offset + (i%DIM) * spacing, i/DIM * spacing;
-            rl.DrawText(rl.TextFormat("%c", elem), c.int(x), c.int(y), 1, rl.WHITE);
+            x, y := xoff + (i%DIM) * spacing, yoff + (i/DIM) * spacing;
+            cl : rl.Color;
+            if _, found := slice.binary_search(high_p1[:], i); found {
+                cl = rl.GREEN;
+            }
+            else if _, found := slice.binary_search(high_p2[:], i); found {
+                cl = rl.BLUE;
+            }
+            else {
+                cl = rl.WHITE;
+            }
+
+            rl.DrawText(rl.TextFormat("%c", elem), c.int(x), c.int(y), c.int(font), cl);
         }
 
+        rl.DrawText(rl.TextFormat("%i", fnum), 15, 575, 5, rl.WHITE);
         rl.EndDrawing();
+        fnum = math.clamp(fnum+1, 0, math.max(len(matches_p1), len(matches_p2)) * time);
     }
     rl.CloseWindow();
 
