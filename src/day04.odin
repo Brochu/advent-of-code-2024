@@ -123,7 +123,8 @@ d4run :: proc (p1, p2: ^strings.Builder) {
         }
     }
 
-    /*
+    spacing := 50 when EXAMPLE else 5;
+    offset := 150 when EXAMPLE else 0;
     rl.InitWindow(800, 600, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
 
@@ -131,10 +132,14 @@ d4run :: proc (p1, p2: ^strings.Builder) {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
+        for elem, i in grid {
+            x, y := offset + (i%DIM) * spacing, i/DIM * spacing;
+            rl.DrawText(rl.TextFormat("%c", elem), c.int(x), c.int(y), 1, rl.WHITE);
+        }
+
         rl.EndDrawing();
     }
     rl.CloseWindow();
-    */
 
     strings.write_int(p1, len(matches_p1));
     strings.write_int(p2, len(matches_p2));
