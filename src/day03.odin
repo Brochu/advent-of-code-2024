@@ -17,6 +17,7 @@ d3run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string), "\r\n");
     text_p1 := input;
     steps_p1 := make([dynamic]Step);
+    //TODO: Find a way to store which step we reach at a given spot in the input string
 
     curr := 0;
     marker :: "mul(";
