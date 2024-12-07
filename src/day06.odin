@@ -77,7 +77,7 @@ d6run :: proc (p1, p2: ^strings.Builder) {
 
     visited := make(map[int]Phantom, DIM*DIM);
     fnum := 0;
-    time := 1;
+    time := 10 when EXAMPLE else 1;
 
     spacing := c.int(600/DIM);
     offset := c.int(100) when EXAMPLE else c.int(150);
