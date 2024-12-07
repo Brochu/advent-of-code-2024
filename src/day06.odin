@@ -60,7 +60,7 @@ find_dir :: proc(grid: []u8, pos: Vec2, dir: Dir) -> (Dir, bool) {
 
 d6run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
-    fmt.printfln("%v", input);
+    //fmt.printfln("%v", input);
     lines := strings.split_lines(input);
     grid := transmute([]u8)strings.join(lines, "");
     DIM = len(lines);
@@ -73,7 +73,7 @@ d6run :: proc (p1, p2: ^strings.Builder) {
             break;
         }
     }
-    fmt.printfln("%v: %v", dir, pos);
+    //fmt.printfln("%v: %v", dir, pos);
 
     visited := make(map[int]Phantom, DIM*DIM);
     fnum := 0;
