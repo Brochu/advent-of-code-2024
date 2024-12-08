@@ -118,13 +118,13 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     }
     slice.reverse(matches_p2[:]);
 
-    spacing := 50 when EXAMPLE else 5;
-    xoff := 150 when EXAMPLE else 50;
-    yoff := 50 when EXAMPLE else 0;
-    font := 20 when EXAMPLE else 1;
+    spacing := 50 when EXAMPLE else 6;
+    xoff := 150 when EXAMPLE else 75;
+    yoff := 50 when EXAMPLE else 75;
+    font := 20 when EXAMPLE else 5;
     fnum := 0;
     time := 20 when EXAMPLE else 1;
-    rl.InitWindow(800, 600, strings.to_cstring(&title));
+    rl.InitWindow(1000, 1000, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
 
     for !rl.WindowShouldClose() {
