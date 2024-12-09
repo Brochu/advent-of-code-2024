@@ -20,13 +20,24 @@ d8run :: proc (p1, p2: ^strings.Builder) {
     antis := make(map[int]Phantom);
 
     parse_grid(grid, &nodes);
-    fmt.printfln("[%v] NODES", len(nodes));
+    //fmt.printfln("[%v] NODES", len(nodes));
     for k, v in nodes {
-        fmt.printfln("[%v] - %v", rune(k), v);
+        //fmt.printfln("[%v] - %v", rune(k), v);
 
         for i in 0..<len(v) {
             for j in i+1..<len(v) {
-                fmt.printfln(" - %v vs. %v", v[i], v[j]);
+                diff := v[j] - v[i];
+
+                a0 := v[i] - diff;
+                if (a0.x >= 0 && a0.x < DIM) && (a0.y >= 0 && a0.y < DIM) {
+                    antis[(a0.y * DIM) + a0.x] = {};
+                }
+                a1 := v[j] + diff;
+                if (a1.x >= 0 && a1.x < DIM) && (a1.y >= 0 && a1.y < DIM) {
+                    antis[(a1.y * DIM) + a1.x] = {};
+                }
+                //REMINDER: Store placed antis per node combo for visuals
+                //fmt.printfln(" - %v vs. %v = %v -> %v ; %v", v[i], v[j], diff, a0, a1);
             }
         }
     }
@@ -66,7 +77,6 @@ show_grid :: proc (grid: []u8, anti: map[int]Phantom) {
 
 @(private="file")
 parse_grid :: proc (grid: []u8, nodes: ^map[u8][dynamic]Vec2) {
-    show_grid(grid, {});
     for c, i in grid {
         x := i % DIM;
         y := i / DIM;
