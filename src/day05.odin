@@ -86,6 +86,7 @@ d5run :: proc (p1, p2: ^strings.Builder) {
     */
 }
 
+@(private="file")
 is_valid_p1 :: proc(rules: map[int]PageSet, update: string) -> ([dynamic]int, bool) {
     nums := make([dynamic]int);
     prev : PageSet;
@@ -103,6 +104,7 @@ is_valid_p1 :: proc(rules: map[int]PageSet, update: string) -> ([dynamic]int, bo
     return nums, valid
 }
 
+@(private="file")
 sort_p2 :: proc(l, r: int) -> slice.Ordering {
     //fmt.printfln("(%v, %v)", l, rules[l]);
     //fmt.printfln("(%v, %v)", r, rules[r]);

@@ -21,11 +21,13 @@ DIRS :: [8]Vec2 {
 
 letters := [4]u8 { 'X', 'M', 'A', 'S' };
 
+@(private="file")
 Node_p1 :: struct {
     pos: [4]Vec2,
     len: int,
 }
 
+@(private="file")
 Node_p2 :: struct {
     pos: [5]Vec2,
 }
