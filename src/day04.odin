@@ -119,9 +119,9 @@ d4run :: proc (p1, p2: ^strings.Builder) {
     slice.reverse(matches_p2[:]);
 
     spacing := 50 when EXAMPLE else 6;
-    xoff := 150 when EXAMPLE else 75;
-    yoff := 50 when EXAMPLE else 75;
-    font := 20 when EXAMPLE else 5;
+    xoff := 250 when EXAMPLE else 75;
+    yoff := 250 when EXAMPLE else 75;
+    font := 50 when EXAMPLE else 5;
     fnum := 0;
     time := 20 when EXAMPLE else 1;
     rl.InitWindow(1000, 1000, strings.to_cstring(&title));
