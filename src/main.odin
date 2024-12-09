@@ -19,6 +19,7 @@ solutions: []day_proc = {
     d5run,
     d6run,
     d7run,
+    d8run,
 };
 title : strings.Builder;
 
