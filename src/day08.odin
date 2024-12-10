@@ -17,7 +17,8 @@ d8run :: proc (p1, p2: ^strings.Builder) {
 
     grid := transmute([]u8)strings.join(lines, "");
     nodes := make(map[u8][dynamic]Vec2);
-    antis := make(map[int]Phantom);
+    antis_p1 := make(map[int]Phantom);
+    antis_p2 := make(map[int]Phantom);
 
     parse_grid(grid, &nodes);
     //fmt.printfln("[%v] NODES", len(nodes));
@@ -30,11 +31,11 @@ d8run :: proc (p1, p2: ^strings.Builder) {
 
                 a0 := v[i] - diff;
                 if (a0.x >= 0 && a0.x < DIM) && (a0.y >= 0 && a0.y < DIM) {
-                    antis[(a0.y * DIM) + a0.x] = {};
+                    antis_p1[(a0.y * DIM) + a0.x] = {};
                 }
                 a1 := v[j] + diff;
                 if (a1.x >= 0 && a1.x < DIM) && (a1.y >= 0 && a1.y < DIM) {
-                    antis[(a1.y * DIM) + a1.x] = {};
+                    antis_p1[(a1.y * DIM) + a1.x] = {};
                 }
                 //REMINDER: Store placed antis per node combo for visuals
                 //fmt.printfln(" - %v vs. %v = %v -> %v ; %v", v[i], v[j], diff, a0, a1);
@@ -42,7 +43,7 @@ d8run :: proc (p1, p2: ^strings.Builder) {
         }
     }
 
-    strings.write_int(p1, len(antis));
+    strings.write_int(p1, len(antis_p1));
     strings.write_string(p2, "Upcoming");
 
     /*
