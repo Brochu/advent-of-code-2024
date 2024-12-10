@@ -22,6 +22,7 @@ d3run :: proc (p1, p2: ^strings.Builder) {
     curr := 0;
     marker :: "mul(";
     for {
+        //TODO: Keep how many chars are offset to calc global index
         curr = strings.index(text_p1, marker);
         if curr == -1 do break;
         if func, f, s, ok := check_marker(text_p1[curr:]); ok {
