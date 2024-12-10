@@ -72,7 +72,7 @@ d9run :: proc (p1, p2: ^strings.Builder) {
     }
 
     strings.write_int(p1, res_p1);
-    strings.write_int(p2, 2);
+    strings.write_string(p2, "Upcoming...");
 
     /*
     rl.InitWindow(800, 600, strings.to_cstring(&title));
