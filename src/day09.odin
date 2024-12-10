@@ -10,11 +10,21 @@ import rl "vendor:raylib"
 @(private="file")
 input_file :: "../data/day09.ex" when EXAMPLE else "../data/day09.in"
 
+@(private="file")
+Segment :: struct {
+    pos: int,
+    size: int,
+    slice: []int, // ???
+}
+
 d9run :: proc (p1, p2: ^strings.Builder) {
     input := transmute([]u8)strings.trim(#load(input_file, string) or_else "", "\r\n");
     mem_blocks_p1 := make([dynamic]int, 0, len(input));
     mem_blocks_p2 := make([dynamic]int, 0, len(input));
 
+    //TODO: Might need to implement our own slice?
+    // Also need to stop using queues here, swap to dynamic arrays
+    // Might need to sort them based on Segment.pos
     free_blocks : queue.Queue([]int);
     queue.init(&free_blocks);
 
@@ -36,20 +46,23 @@ d9run :: proc (p1, p2: ^strings.Builder) {
         }
 
         for i in 0..<size {
-            idx := i + pos;
-            queue.push_back(q, idx); //TODO: Figure out slice syntax
             append(&mem_blocks_p1, id);
+            queue.push_back(q, mem_blocks_p1[pos:pos+1]);
         }
         pos += size;
     }
+    fmt.printfln("%v", mem_blocks_p1);
+    fmt.printfln("%v", free_blocks);
+    fmt.printfln("%v", file_blocks);
 
     for queue.len(free_blocks) > 0 {
         file_index := queue.pop_back(&file_blocks);
         free_index := queue.pop_front(&free_blocks);
 
-        if free_index >= file_index do break;
-        slice.swap(mem_blocks_p1[:], file_index, free_index);
+        if raw_data(free_index) >= raw_data(file_index) do break;
+        slice.swap_between(file_index, free_index);
     }
+    fmt.printfln("%v", mem_blocks_p1);
 
     res_p1 := 0;
     for block, i in mem_blocks_p1 {
