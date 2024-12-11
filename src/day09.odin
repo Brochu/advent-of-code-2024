@@ -1,6 +1,5 @@
 package main
 import "core:c"
-import "core:container/queue"
 import "core:fmt"
 import "core:math"
 import "core:slice"
@@ -14,28 +13,20 @@ input_file :: "../data/day09.ex" when EXAMPLE else "../data/day09.in"
 Segment :: struct {
     pos: int,
     size: int,
-    slice: []int, // ???
 }
 
 d9run :: proc (p1, p2: ^strings.Builder) {
     input := transmute([]u8)strings.trim(#load(input_file, string) or_else "", "\r\n");
     mem_blocks_p1 := make([dynamic]int, 0, len(input));
     mem_blocks_p2 := make([dynamic]int, 0, len(input));
-
-    //TODO: Might need to implement our own slice?
-    // Also need to stop using queues here, swap to dynamic arrays
-    // Might need to sort them based on Segment.pos
-    free_blocks : queue.Queue([]int);
-    queue.init(&free_blocks);
-
-    file_blocks : queue.Queue([]int);
-    queue.init(&file_blocks);
+    free_blocks := make([dynamic]Segment, 0, len(input));
+    file_blocks := make([dynamic]Segment, 0, len(input));
 
     pos := 0;
     for c, i in input {
         size := int(c - '0');
         id := -1;
-        q : ^queue.Queue([]int);
+        q : ^[dynamic]Segment;
 
         if (i % 2) == 1 {
             q = &free_blocks
@@ -47,27 +38,25 @@ d9run :: proc (p1, p2: ^strings.Builder) {
 
         for i in 0..<size {
             append(&mem_blocks_p1, id);
-            queue.push_back(q, mem_blocks_p1[pos:pos+1]);
+            append(q, Segment{ pos+i, 1 });
         }
         pos += size;
     }
-    fmt.printfln("%v", mem_blocks_p1);
-    fmt.printfln("%v", free_blocks);
-    fmt.printfln("%v", file_blocks);
 
-    for queue.len(free_blocks) > 0 {
-        file_index := queue.pop_back(&file_blocks);
-        free_index := queue.pop_front(&free_blocks);
+    for len(free_blocks) > 0 {
+        free_segment := free_blocks[0];
+        ordered_remove(&free_blocks, 0);
+        file_segment := file_blocks[len(file_blocks)-1];
+        ordered_remove(&file_blocks, len(file_blocks)-1);
 
-        if raw_data(free_index) >= raw_data(file_index) do break;
-        slice.swap_between(file_index, free_index);
+        if free_segment.pos >= file_segment.pos do break;
+        slice.swap(mem_blocks_p1[:], free_segment.pos, file_segment.pos);
     }
-    fmt.printfln("%v", mem_blocks_p1);
+    //fmt.printfln("%v", mem_blocks_p1);
 
     res_p1 := 0;
     for block, i in mem_blocks_p1 {
         if block == -1 do break;
-
         res_p1 += block * i;
     }
 
