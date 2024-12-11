@@ -20,7 +20,7 @@ d8run :: proc (p1, p2: ^strings.Builder) {
     antis_p1 := make(map[int]Phantom);
     antis_p2 := make(map[int]Phantom);
 
-    parse_grid(grid, &nodes);
+    parse_grid(grid, &nodes, &antis_p2);
     //fmt.printfln("[%v] NODES", len(nodes));
     for k, v in nodes {
         //fmt.printfln("[%v] - %v", rune(k), v);
@@ -29,22 +29,30 @@ d8run :: proc (p1, p2: ^strings.Builder) {
             for j in i+1..<len(v) {
                 diff := v[j] - v[i];
 
-                a0 := v[i] - diff;
-                if (a0.x >= 0 && a0.x < DIM) && (a0.y >= 0 && a0.y < DIM) {
-                    antis_p1[(a0.y * DIM) + a0.x] = {};
-                }
-                a1 := v[j] + diff;
-                if (a1.x >= 0 && a1.x < DIM) && (a1.y >= 0 && a1.y < DIM) {
-                    antis_p1[(a1.y * DIM) + a1.x] = {};
+                valid_0 := true;
+                valid_1 := true;
+                for mult := 1; valid_0 || valid_1; mult += 1 {
+                    a0 := v[i] - (diff * mult);
+                    valid_0 = (a0.x >= 0 && a0.x < DIM) && (a0.y >= 0 && a0.y < DIM);
+                    if valid_0 {
+                        if mult == 1 do antis_p1[(a0.y * DIM) + a0.x] = {};
+                        antis_p2[(a0.y * DIM) + a0.x] = {}
+                    }
+                    a1 := v[j] + (diff * mult);
+                    valid_1 = (a1.x >= 0 && a1.x < DIM) && (a1.y >= 0 && a1.y < DIM);
+                    if valid_1 {
+                        if mult == 1 do antis_p1[(a1.y * DIM) + a1.x] = {};
+                        antis_p2[(a1.y * DIM) + a1.x] = {}
+                    }
+                    //fmt.printfln(" - %v vs. %v = %v -> %v ; %v", v[i], v[j], diff, a0, a1);
                 }
                 //REMINDER: Store placed antis per node combo for visuals
-                //fmt.printfln(" - %v vs. %v = %v -> %v ; %v", v[i], v[j], diff, a0, a1);
             }
         }
     }
 
     strings.write_int(p1, len(antis_p1));
-    strings.write_string(p2, "Upcoming");
+    strings.write_int(p2, len(antis_p2));
 
     /*
     rl.InitWindow(800, 600, strings.to_cstring(&title));
@@ -77,13 +85,14 @@ show_grid :: proc (grid: []u8, anti: map[int]Phantom) {
 }
 
 @(private="file")
-parse_grid :: proc (grid: []u8, nodes: ^map[u8][dynamic]Vec2) {
+parse_grid :: proc (grid: []u8, nodes: ^map[u8][dynamic]Vec2, antis_p2: ^map[int]Phantom) {
     for c, i in grid {
         x := i % DIM;
         y := i / DIM;
         if c != '.' {
             if _, ok := nodes[c]; !ok do nodes[c] = make([dynamic]Vec2);
             append(&nodes[c], Vec2{ x, y });
+            antis_p2[i] = {};
         }
     }
 }
