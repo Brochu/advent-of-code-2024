@@ -18,36 +18,52 @@ Segment :: struct {
 d9run :: proc (p1, p2: ^strings.Builder) {
     input := transmute([]u8)strings.trim(#load(input_file, string) or_else "", "\r\n");
     mem_blocks_p1 := make([dynamic]int, 0, len(input));
-    mem_blocks_p2 := make([dynamic]int, 0, len(input));
-    free_blocks := make([dynamic]Segment, 0, len(input));
-    file_blocks := make([dynamic]Segment, 0, len(input));
+    free_blocks_p1 := make([dynamic]Segment, 0, len(input));
+    file_blocks_p1 := make([dynamic]Segment, 0, len(input));
+
+    free_blocks_p2 := make([dynamic]Segment, 0, len(input));
+    file_blocks_p2 := make([dynamic]Segment, 0, len(input));
 
     pos := 0;
     for c, i in input {
         size := int(c - '0');
         id := -1;
-        q : ^[dynamic]Segment;
+        q_p1 : ^[dynamic]Segment;
+        q_p2 : ^[dynamic]Segment;
 
         if (i % 2) == 1 {
-            q = &free_blocks
+            q_p1 = &free_blocks_p1
+            q_p2 = &free_blocks_p2
         }
         else {
             id = i / 2
-            q = &file_blocks
+            q_p1 = &file_blocks_p1
+            q_p2 = &file_blocks_p2
         }
 
         for i in 0..<size {
             append(&mem_blocks_p1, id);
-            append(q, Segment{ pos+i, 1 });
+            append(q_p1, Segment{ pos+i, 1 });
         }
+        if size > 0 do append(q_p2, Segment { pos, size });
         pos += size;
     }
+    mem_blocks_p2 := slice.clone(mem_blocks_p1[:]);
+    fmt.printfln("MEM: %v", mem_blocks_p2);
+    fmt.println("FREE:");
+    for free in free_blocks_p2 {
+        fmt.printfln(" - %v", free);
+    }
+    fmt.println("FILE:");
+    for file in file_blocks_p2 {
+        fmt.printfln(" - %v", file);
+    }
 
-    for len(free_blocks) > 0 {
-        free_segment := free_blocks[0];
-        ordered_remove(&free_blocks, 0);
-        file_segment := file_blocks[len(file_blocks)-1];
-        ordered_remove(&file_blocks, len(file_blocks)-1);
+    for len(free_blocks_p1) > 0 {
+        free_segment := free_blocks_p1[0];
+        ordered_remove(&free_blocks_p1, 0);
+        file_segment := file_blocks_p1[len(file_blocks_p1)-1];
+        ordered_remove(&file_blocks_p1, len(file_blocks_p1)-1);
 
         if free_segment.pos >= file_segment.pos do break;
         slice.swap(mem_blocks_p1[:], free_segment.pos, file_segment.pos);
