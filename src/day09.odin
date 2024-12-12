@@ -49,15 +49,6 @@ d9run :: proc (p1, p2: ^strings.Builder) {
         pos += size;
     }
     mem_blocks_p2 := slice.clone(mem_blocks_p1[:]);
-    fmt.printfln("MEM: %v", mem_blocks_p2);
-    fmt.println("FREE:");
-    for free in free_blocks_p2 {
-        fmt.printfln(" - %v", free);
-    }
-    fmt.println("FILE:");
-    for file in file_blocks_p2 {
-        fmt.printfln(" - %v", file);
-    }
 
     for len(free_blocks_p1) > 0 {
         free_segment := free_blocks_p1[0];
@@ -70,14 +61,35 @@ d9run :: proc (p1, p2: ^strings.Builder) {
     }
     //fmt.printfln("%v", mem_blocks_p1);
 
+    #reverse for file in file_blocks_p2 {
+        fmt.printfln(" -%v", file);
+        // Rework this, try to move each file once
+        // place on best free space from start
+    }
+    //fmt.printfln("%v", mem_blocks_p2);
+    //for free in free_blocks_p2 {
+    //    fmt.printfln("%v", free);
+    //}
+    //fmt.println();
+    //for file in file_blocks_p2 {
+    //    fmt.printfln("%v", file);
+    //}
+
     res_p1 := 0;
     for block, i in mem_blocks_p1 {
-        if block == -1 do break;
-        res_p1 += block * i;
+        if block != -1 {
+            res_p1 += block * i;
+        }
+    }
+    res_p2 := 0;
+    for block, i in mem_blocks_p2 {
+        if block != -1 {
+            res_p2 += block * i;
+        }
     }
 
     strings.write_int(p1, res_p1);
-    strings.write_string(p2, "Upcoming...");
+    strings.write_int(p2, res_p2);
 
     /*
     rl.InitWindow(800, 600, strings.to_cstring(&title));
@@ -94,4 +106,11 @@ d9run :: proc (p1, p2: ^strings.Builder) {
     }
     rl.CloseWindow();
     */
+}
+
+free_of_size :: proc(free_blocks: [dynamic]Segment, filesize: int) -> int {
+    for free, i in free_blocks {
+        if free.size >= filesize do return i;
+    }
+    return -1;
 }
