@@ -59,21 +59,27 @@ d9run :: proc (p1, p2: ^strings.Builder) {
         if free_segment.pos >= file_segment.pos do break;
         slice.swap(mem_blocks_p1[:], free_segment.pos, file_segment.pos);
     }
-    //fmt.printfln("%v", mem_blocks_p1);
 
-    #reverse for file in file_blocks_p2 {
-        fmt.printfln(" -%v", file);
-        // Rework this, try to move each file once
-        // place on best free space from start
+    #reverse for &file in file_blocks_p2 {
+        free_idx := free_of_size(free_blocks_p2, file.size);
+        if free_idx == -1 do continue;
+
+        free := free_blocks_p2[free_idx];
+        if free.pos >= file.pos do continue;
+        ordered_remove(&free_blocks_p2, free_idx);
+
+        for i in 0..<file.size {
+            slice.swap(mem_blocks_p2[:], file.pos+i, free.pos+i);
+        }
+        file.pos = free.pos;
+
+        if free.size > file.size {
+            inject_at_elem(&free_blocks_p2, free_idx, Segment {
+                free.pos + file.size,
+                free.size - file.size,
+            });
+        }
     }
-    //fmt.printfln("%v", mem_blocks_p2);
-    //for free in free_blocks_p2 {
-    //    fmt.printfln("%v", free);
-    //}
-    //fmt.println();
-    //for file in file_blocks_p2 {
-    //    fmt.printfln("%v", file);
-    //}
 
     res_p1 := 0;
     for block, i in mem_blocks_p1 {
