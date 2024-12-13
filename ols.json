@@ -3,7 +3,7 @@
   "profile": "default", "profiles": [{ "name": "default", "checker_path": ["./"] }],
   "checker_args": "-strict-style",
   "enable_document_symbols": true,
-  "enable_format": true,
+  "enable_format": false,
   "enable_hover": true,
   "enable_references": true,
   "enable_rename": true,
