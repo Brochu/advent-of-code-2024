@@ -17,6 +17,7 @@ Region :: struct {
     char: u8,
     area: int,
     peri: int,
+    corners: int,
     plots: [dynamic]int,
 };
 
@@ -52,8 +53,11 @@ d12run :: proc (p1, p2: ^strings.Builder) {
     res_p1 := slice.reduce(regions[:], 0, proc(acc: int, region: Region) -> int {
         return acc + region.area * region.peri;
     });
+    res_p2 := slice.reduce(regions[:], 0, proc(acc: int, region: Region) -> int {
+        return acc + region.area * region.corners;
+    });
     strings.write_int(p1, res_p1);
-    strings.write_string(p2, "Upcoming...");
+    strings.write_int(p2, res_p2);
 
     xoff := 250 when EXAMPLE else 10;
     yoff := 250 when EXAMPLE else 10;
@@ -86,7 +90,7 @@ d12run :: proc (p1, p2: ^strings.Builder) {
 print_state :: proc(regions: []Region, visited: map[int]Phantom) {
     fmt.println("REGIONS:");
     for r in regions {
-        fmt.printfln("    [%c][A=%v][P=%v] -> %v", r.char, r.area, r.peri, r.plots);
+        fmt.printfln("    [%c][A=%v][P=%v][C=%v] -> %v", r.char, r.area, r.peri, r.corners, r.plots);
     }
     fmt.println("VISITED:");
     fmt.print("    ");
@@ -116,6 +120,7 @@ flood_fill :: proc(sidx: int, grid: []u8, visited: ^map[int]Phantom) -> Region {
         grid[sidx],
         0,
         0,
+        0,
         make([dynamic]int, 0, len(grid)),
     }
     stack := make([dynamic]int, 0, len(grid));
@@ -142,5 +147,38 @@ flood_fill :: proc(sidx: int, grid: []u8, visited: ^map[int]Phantom) -> Region {
             }
         }
     }
+    region.corners = count_corners(grid, region);
     return region;
+}
+
+count_corners :: proc(g: []u8, r: Region) -> int {
+    corners := 0;
+
+    for idx in r.plots {
+        pos := Vec2 { idx % DIM, idx / DIM };
+        top := pos + DIRS[Dir.Up];
+        lft := pos + DIRS[Dir.Left];
+        rgt := pos + DIRS[Dir.Right];
+        dwn := pos + DIRS[Dir.Down];
+        //fmt.printfln("POS: %v [%v]", pos, grid_get(g, pos));
+        //fmt.printfln("    TOP: %v [%v] vs LFT: %v [%v]", top, grid_get(g, top), lft, grid_get(g, lft));
+        //fmt.printfln("    LFT: %v [%v] vs DWN: %v [%v]", lft, grid_get(g, lft), dwn, grid_get(g, dwn));
+        //fmt.printfln("    DWN: %v [%v] vs RGT: %v [%v]", dwn, grid_get(g, dwn), rgt, grid_get(g, rgt));
+        //fmt.printfln("    RGT: %v [%v] vs TOP: %v [%v]", rgt, grid_get(g, rgt), top, grid_get(g, top));
+        tl := pos + DIRS[Dir.Up] + DIRS[Dir.Left];
+        dl := pos + DIRS[Dir.Down] + DIRS[Dir.Left];
+        dr := pos + DIRS[Dir.Down] + DIRS[Dir.Right];
+        tr := pos + DIRS[Dir.Up] + DIRS[Dir.Right];
+
+        if (grid_get(g, top) != r.char) && (grid_get(g, lft) != r.char) do corners += 1;
+        if (grid_get(g, lft) != r.char) && (grid_get(g, dwn) != r.char) do corners += 1;
+        if (grid_get(g, dwn) != r.char) && (grid_get(g, rgt) != r.char) do corners += 1;
+        if (grid_get(g, rgt) != r.char) && (grid_get(g, top) != r.char) do corners += 1;
+
+        if (grid_get(g, top) == r.char) && (grid_get(g, lft) == r.char) && (grid_get(g, tl) != r.char) do corners += 1;
+        if (grid_get(g, lft) == r.char) && (grid_get(g, dwn) == r.char) && (grid_get(g, dl) != r.char) do corners += 1;
+        if (grid_get(g, dwn) == r.char) && (grid_get(g, rgt) == r.char) && (grid_get(g, dr) != r.char) do corners += 1;
+        if (grid_get(g, rgt) == r.char) && (grid_get(g, top) == r.char) && (grid_get(g, tr) != r.char) do corners += 1;
+    }
+    return corners;
 }
