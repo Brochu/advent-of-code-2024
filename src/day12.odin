@@ -87,6 +87,7 @@ d12run :: proc (p1, p2: ^strings.Builder) {
     rl.CloseWindow();
 }
 
+@(private="file")
 print_state :: proc(regions: []Region, visited: map[int]Phantom) {
     fmt.println("REGIONS:");
     for r in regions {
@@ -101,11 +102,13 @@ print_state :: proc(regions: []Region, visited: map[int]Phantom) {
     fmt.println();
 }
 
+@(private="file")
 grid_get :: proc(grid: []u8, pos: Vec2) -> u8 {
     if (pos.x < 0 || pos.x >= DIM) || (pos.y < 0 || pos.y >= DIM) { return 0; }
     else do return grid[(pos.y * DIM) + pos.x];
 }
 
+@(private="file")
 find_region :: proc(regions: [dynamic]Region, idx: int) -> rl.Color {
     COLORS := COLORS;
     for region, i in regions {
@@ -114,6 +117,7 @@ find_region :: proc(regions: [dynamic]Region, idx: int) -> rl.Color {
     return rl.WHITE;
 }
 
+@(private="file")
 flood_fill :: proc(sidx: int, grid: []u8, visited: ^map[int]Phantom) -> Region {
     DIRS := DIRS;
     region: Region = {
@@ -151,6 +155,7 @@ flood_fill :: proc(sidx: int, grid: []u8, visited: ^map[int]Phantom) -> Region {
     return region;
 }
 
+@(private="file")
 count_corners :: proc(g: []u8, r: Region) -> int {
     corners := 0;
 
