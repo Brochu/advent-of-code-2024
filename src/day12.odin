@@ -15,6 +15,8 @@ DIM := 0;
 @(private="file")
 Region :: struct {
     char: u8,
+    area: int,
+    peri: int,
     plots: [dynamic]int,
 };
 
@@ -87,6 +89,8 @@ flood_fill :: proc(sidx: int, grid: []u8, visited: ^map[int]Phantom) -> Region {
     DIRS := DIRS;
     region: Region = {
         grid[sidx],
+        0,
+        0,
         make([dynamic]int, 0, len(grid)),
     }
     stack := make([dynamic]int, 0, len(grid));
