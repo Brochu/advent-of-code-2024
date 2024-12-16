@@ -64,12 +64,15 @@ d14run :: proc (p1, p2: ^strings.Builder) {
         append(&steps, slice.clone(robots));
     }
 
+    quadrants: [4]int;
     for robot in robots {
-        quad, ok := find_quadrant(robot);
-        fmt.printfln("    pos: %v -> [%v] %v", robot.pos, ok, quad);
+        if quad, ok := find_quadrant(robot); ok {
+            quadrants[quad] += 1;
+        }
     }
+    //fmt.printfln("%v", quadrants);
 
-    strings.write_int(p1, 14);
+    strings.write_int(p1, slice.reduce(quadrants[:], 1, proc (acc, val: int) -> int { return acc * val }));
     strings.write_int(p2, 14);
 
     /*
@@ -80,7 +83,7 @@ d14run :: proc (p1, p2: ^strings.Builder) {
     margin := c.int(5) when EXAMPLE else c.int(1);
 
     fnum := 0;
-    time := 5;
+    time := 1;
     rl.InitWindow(800, 750, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
     for !rl.WindowShouldClose() {
@@ -101,6 +104,10 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             count := slice.count_proc(step, proc (r: Robot) -> bool {
                 return r.pos == (cast(^Vec2)context.user_ptr)^;
             });
+
+            //if x == (XDIM/2) || y == (YDIM/2) {
+            //    count = len(Colors) - 3;
+            //}
 
             rl.DrawRectangleLines(px, py, spacing-margin, spacing-margin, Colors[count]);
             rl.DrawText(rl.TextFormat("%i", fnum), 15, 750-25, 15, rl.WHITE);
@@ -128,5 +135,12 @@ sim_robot :: proc (robot: ^Robot) {
 }
 
 find_quadrant :: proc (robot: Robot) -> (int, bool) {
-    return 0, false;
+    xmid, ymid := (XDIM/2), (YDIM/2);
+    //fmt.printfln("(%v, %v)", xmid, ymid);
+
+    if robot.pos.x < xmid && robot.pos.y < ymid do return 0, true;
+    if robot.pos.x > xmid && robot.pos.y < ymid do return 1, true;
+    if robot.pos.x < xmid && robot.pos.y > ymid do return 2, true;
+    if robot.pos.x > xmid && robot.pos.y > ymid do return 3, true;
+    return -1, false;
 }
