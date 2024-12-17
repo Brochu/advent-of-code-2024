@@ -26,12 +26,12 @@ TIME :: 100;
 @(private="file")
 Colors: []rl.Color = {
     rl.WHITE,
+    rl.BLUE,
     rl.RED,
+    rl.GREEN,
     rl.ORANGE,
     rl.YELLOW,
-    rl.GREEN,
     rl.SKYBLUE,
-    rl.BLUE,
     rl.DARKBLUE,
     rl.PURPLE,
     rl.PINK,
@@ -53,6 +53,7 @@ d14run :: proc (p1, p2: ^strings.Builder) {
         vy, _ := strconv.parse_int(elems[1][2+pos+1:]);
         return { { px, py } , { vx, vy } };
     });
+    robots_p2 := slice.clone(robots);
 
     steps := make([dynamic][]Robot, 0, TIME);
     append(&steps, slice.clone(robots));
@@ -62,6 +63,33 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             sim_robot(&robots[i]);
         }
         append(&steps, slice.clone(robots));
+    }
+
+    start := 17844;
+    for sec in 0..<start {
+        for i in 0..<len(robots_p2) {
+            sim_robot(&robots_p2[i]);
+        }
+    }
+
+    render_p2: []Robot;
+    render_idx := start;
+    for true {
+        checked := make(map[int]int);
+        for i in 0..<len(robots) {
+            sim_robot(&robots_p2[i]);
+            idx := (robots_p2[i].pos.y * XDIM) + robots_p2[i].pos.x;
+            checked[idx] += 1;
+        }
+        max_count := 0;
+        for _, v in checked {
+            max_count = math.max(max_count, v);
+        }
+        if max_count >= 5 {
+            render_p2 = slice.clone(robots_p2);
+            break;
+        }
+        render_idx += 1;
     }
 
     quadrants: [4]int;
@@ -75,7 +103,6 @@ d14run :: proc (p1, p2: ^strings.Builder) {
     strings.write_int(p1, slice.reduce(quadrants[:], 1, proc (acc, val: int) -> int { return acc * val }));
     strings.write_int(p2, 14);
 
-    /*
     when EXAMPLE do xoff, yoff := c.int(125), c.int(200);
     else do xoff, yoff := c.int(50), c.int(10);
     spacing := c.int(50) when EXAMPLE else c.int(7);
@@ -84,13 +111,10 @@ d14run :: proc (p1, p2: ^strings.Builder) {
 
     fnum := 0;
     time := 1;
+    p2 := true;
     rl.InitWindow(800, 750, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
     for !rl.WindowShouldClose() {
-        //if rl.IsMouseButtonPressed(rl.MouseButton.LEFT) {
-        //    fnum += time;
-        //}
-
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
@@ -98,7 +122,8 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             px := c.int(xoff + (c.int(x) * spacing));
             py := c.int(yoff + (c.int(y) * spacing));
 
-            step := steps[fnum/time];
+            //step := steps[fnum/time];
+            step := render_p2;
             cell := Vec2 { x, y };
             context.user_ptr = &cell;
             count := slice.count_proc(step, proc (r: Robot) -> bool {
@@ -110,13 +135,12 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             //}
 
             rl.DrawRectangleLines(px, py, spacing-margin, spacing-margin, Colors[count]);
-            rl.DrawText(rl.TextFormat("%i", fnum), 15, 750-25, 15, rl.WHITE);
+            rl.DrawText(rl.TextFormat("%i", render_idx), 15, 750-25, 15, rl.WHITE);
         }
         rl.EndDrawing();
         fnum = math.clamp(fnum+1, 0, (len(steps) * time)-1);
     }
     rl.CloseWindow();
-    */
 }
 
 print_robots :: proc (robots: []Robot) {
