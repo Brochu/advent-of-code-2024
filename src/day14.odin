@@ -74,23 +74,24 @@ d14run :: proc (p1, p2: ^strings.Builder) {
 
     render_p2: []Robot;
     render_idx := start;
-    for true {
-        checked := make(map[int]int);
-        for i in 0..<len(robots) {
-            sim_robot(&robots_p2[i]);
-            idx := (robots_p2[i].pos.y * XDIM) + robots_p2[i].pos.x;
-            checked[idx] += 1;
-        }
-        max_count := 0;
-        for _, v in checked {
-            max_count = math.max(max_count, v);
-        }
-        if max_count >= 5 {
-            render_p2 = slice.clone(robots_p2);
-            break;
-        }
-        render_idx += 1;
-    }
+    //TODO: Look into a way to check if most robots are grouped in one spot
+    //for true {
+    //    checked := make(map[int]int);
+    //    for i in 0..<len(robots) {
+    //        sim_robot(&robots_p2[i]);
+    //        idx := (robots_p2[i].pos.y * XDIM) + robots_p2[i].pos.x;
+    //        checked[idx] += 1;
+    //    }
+    //    max_count := 0;
+    //    for _, v in checked {
+    //        max_count = math.max(max_count, v);
+    //    }
+    //    if max_count >= 5 {
+    //        render_p2 = slice.clone(robots_p2);
+    //        break;
+    //    }
+    //    render_idx += 1;
+    //}
 
     quadrants: [4]int;
     for robot in robots {
@@ -122,8 +123,8 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             px := c.int(xoff + (c.int(x) * spacing));
             py := c.int(yoff + (c.int(y) * spacing));
 
-            //step := steps[fnum/time];
-            step := render_p2;
+            step := steps[fnum/time];
+            //step := render_p2;
             cell := Vec2 { x, y };
             context.user_ptr = &cell;
             count := slice.count_proc(step, proc (r: Robot) -> bool {
