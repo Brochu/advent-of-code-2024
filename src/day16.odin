@@ -55,9 +55,11 @@ d16run :: proc (p1, p2: ^strings.Builder) {
 
     dist := make([]int, len(grid));
     prev := make([]int, len(grid));
+    move := make([]Vec2, len(grid));
     slice.fill(prev, -1);
     slice.fill(dist, max(int));
     dist[start] = 0;
+    move[start] = { 1, 0 };
 
     context.user_ptr = &dist;
     q: pq.Priority_Queue(int);
@@ -71,16 +73,21 @@ d16run :: proc (p1, p2: ^strings.Builder) {
         delete_key(&check, idx);
 
         for n in find_next(grid, idx) {
-            alt := dist[idx] + 1; // 1 for now, check turns later
-            if alt < dist[n] {
-                dist[n] = alt;
-                prev[n] = idx;
+            npos := Vec2 { n % DIM, n / DIM };
+            m := npos - pos;
 
+            alt := dist[idx] + 1; // 1 for now, check turns later
+            if is_turn(move[idx], m) {
+                alt += 1000;
+            }
+
+            if alt < dist[n] {
+                dist[n], prev[n], move[n] = alt, idx, m;
                 pq.push(&q, n);
             }
         }
     }
-    fmt.printfln("COMPLETE! %v ; Score = %v", Vec2 { end % DIM, end / DIM }, dist[end]);
+    //fmt.printfln("COMPLETE! %v ; Score = %v", Vec2 { end % DIM, end / DIM }, dist[end]);
 
     curr := end;
     for prev[curr] != start {
@@ -88,11 +95,11 @@ d16run :: proc (p1, p2: ^strings.Builder) {
         curr = prev[curr];
     }
 
-    strings.write_int(p1, 16);
+    strings.write_int(p1, dist[end]);
     strings.write_int(p2, 16);
 
     off: c.int : 2 when EXAMPLE else 25;
-    spacing: c.int : 60 when EXAMPLE else 6;
+    spacing: c.int : 53 when EXAMPLE else 6;
     minus: c.int : 5 when EXAMPLE else 1;
     time :: 5 when EXAMPLE else 1;
     fnum := 0;
@@ -130,9 +137,22 @@ find_next :: proc(grid: []u8, idx: int) -> []int {
         target := pos + d;
         tidx := (target.y * DIM) + target.x;
 
-        if _, ok := check[tidx]; ok && grid[tidx] != '#' {
+        if tidx in check && grid[tidx] != '#' {
             append(&res, tidx);
         }
     }
     return res[:];
+}
+
+@(private="file")
+is_turn :: proc (from, to: Vec2) -> bool {
+    if (from.x == 0 && from.y == 0) || (to.x == 0 && to.y == 0) {
+        return false;
+    }
+    if from == to do return false;
+
+    if from.x == 0 && to.y == 0 do return true;
+    if from.y == 0 && to.x == 0 do return true;
+
+    return false;
 }
