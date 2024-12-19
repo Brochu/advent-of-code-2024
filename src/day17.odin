@@ -34,14 +34,14 @@ d17run :: proc (p1, p2: ^strings.Builder) {
     for rline, i in strings.split_lines(elems[0]) {
         regs[cast(Registers)i] = strconv.atoi(rline[12:]);
     }
-    fmt.printfln("%v", regs);
+    //fmt.printfln("%v", regs);
 
     prog = make([dynamic]u8, 0, len(elems[1]));
     elems[1] = elems[1][9:];
     for val in strings.split_iterator(&elems[1], ",") {
         append(&prog, val[0] - '0');
     }
-    fmt.printfln("%v", prog);
+    //fmt.printfln("%v", prog);
     strings.builder_init_len_cap(&sb_out, 0, 256);
 
     for pc < len(prog) {
@@ -49,7 +49,6 @@ d17run :: proc (p1, p2: ^strings.Builder) {
         operand := prog[pc+1];
         operations[opcode](operand);
     }
-    fmt.printfln("%v", regs);
 
     strings.write_string(p1, strings.to_string(sb_out));
     strings.write_string(p2, "D17 - P2");
@@ -70,22 +69,11 @@ d17run :: proc (p1, p2: ^strings.Builder) {
 @(private="file")
 resolve_combo :: proc (val: u8) -> int {
     switch(val) {
-    case 0:
-        fallthrough;
-    case 1:
-        fallthrough;
-    case 2:
-        fallthrough;
-    case 3:
-        return cast(int)val;
-    case 4:
-        return regs[.A];
-    case 5:
-        return regs[.B];
-    case 6:
-        return regs[.C];
+    case 0..=3: return cast(int)val;
+    case 4: return regs[.A];
+    case 5: return regs[.B];
+    case 6: return regs[.C];
     };
-
     fmt.printfln("INVALID combo operand : %v", val);
     return -1;
 }
@@ -101,12 +89,15 @@ adv :: proc (cop: u8) {
 @(private="file")
 bxl :: proc (lop: u8) {
     fmt.printfln("[BXL] %v", lop);
+    regs[.B] ~= cast(int)lop;
     pc += 2;
 }
 
 @(private="file")
 bst :: proc (cop: u8) {
-    fmt.printfln("[BST] %v", resolve_combo(cop));
+    param := resolve_combo(cop);
+    fmt.printfln("[BST] (%v) %v", cop, param);
+    regs[.B] = param % 8;
     pc += 2;
 }
 
@@ -124,6 +115,7 @@ jnz :: proc (lop: u8) {
 @(private="file")
 bxc :: proc (_: u8) {
     fmt.printfln("[BXC]");
+    regs[.B] ~= regs[.C];
     pc += 2;
 }
 
@@ -139,13 +131,23 @@ out :: proc (cop: u8) {
 }
 
 @(private="file")
-bdv :: proc (_: u8) {
-    fmt.printfln("[BDV]");
+bdv :: proc (cop: u8) {
+    param := resolve_combo(cop);
+    fmt.printfln("[BDV] (%v) %v", cop, param);
+    areg := regs[.A];
+    for _ in 0..<param do areg /= 2;
+
+    regs[.B] = areg;
     pc += 2;
 }
 
 @(private="file")
-cdv :: proc (_: u8) {
-    fmt.printfln("[CDV]");
+cdv :: proc (cop: u8) {
+    param := resolve_combo(cop);
+    fmt.printfln("[CDV] (%v) %v", cop, param);
+    areg := regs[.A];
+    for _ in 0..<param do areg /= 2;
+
+    regs[.C] = areg;
     pc += 2;
 }
