@@ -17,6 +17,9 @@ bytes: [dynamic]Vec2;
 grid: map[Vec2]Phantom;
 
 @(private="file")
+path: map[int]Phantom;
+
+@(private="file")
 check := make(map[int]Phantom);
 
 @(private="file")
@@ -38,9 +41,10 @@ d18run :: proc (p1, p2: ^strings.Builder) {
     for i in 0..<(DIM*DIM) do check[i] = {};
     start := 0;
     end := (DIM*DIM) - 1;
+    //fmt.printfln("%v", grid);
 
-    dist := make([]int, len(grid));
-    prev := make([]int, len(grid));
+    dist := make([]int, DIM*DIM);
+    prev := make([]int, DIM*DIM);
     slice.fill(prev, -1);
     slice.fill(dist, max(int));
     dist[start] = 0;
@@ -55,7 +59,7 @@ d18run :: proc (p1, p2: ^strings.Builder) {
         //fmt.printfln("[Q] visiting %v -> %v", idx, pos);
         delete_key(&check, idx);
 
-        for n in find_next(idx) {
+        for n in find_next(grid, idx) {
             alt := dist[idx] + 1; // 1 for now, check turns later
             if alt < dist[n] {
                 dist[n], prev[n] = alt, idx;
@@ -65,8 +69,14 @@ d18run :: proc (p1, p2: ^strings.Builder) {
     }
     //fmt.printfln("COMPLETE! %v ; Score = %v", Vec2 { end % DIM, end / DIM }, dist[end]);
 
-    strings.write_string(p1, "D18 - P1");
-    strings.write_string(p2, "D18 - P2");
+    curr := end;
+    for prev[curr] != start {
+        path[curr] = {};
+        curr = prev[curr];
+    }
+
+    strings.write_int(p1, dist[end]);
+    strings.write_string(p2, "D18 - P2"); //TODO: Find out when the way is blocked
 
     spacing: c.int : 114 when EXAMPLE else 10;
     diff: c.int : 5 when EXAMPLE else 1;
@@ -84,6 +94,7 @@ d18run :: proc (p1, p2: ^strings.Builder) {
             pos := Vec2 { x, y };
             idx := (y * DIM) + x;
             col := rl.WHITE;
+            if idx in path do col = rl.YELLOW;
             if pos in grid do col = rl.BLUE;
             if idx == 0 do col = rl.GREEN;
             if idx == (DIM*DIM)-1 do col = rl.RED;
@@ -97,7 +108,19 @@ d18run :: proc (p1, p2: ^strings.Builder) {
 }
 
 @(private="file")
-find_next :: proc(idx: int) -> []int {
+find_next :: proc(grid: map[Vec2]Phantom, idx: int) -> []int {
     res := make([dynamic]int, 0, 4);
+
+    pos := Vec2 { idx % DIM, idx / DIM };
+    for d in Dirs {
+        target := pos + d;
+        if (target.x < 0 || target.x >= DIM) || (target.y < 0 || target.y >= DIM) do continue;
+
+        tidx := (target.y * DIM) + target.x;
+
+        if tidx in check && !(target in grid) {
+            append(&res, tidx);
+        }
+    }
     return res[:];
 }
