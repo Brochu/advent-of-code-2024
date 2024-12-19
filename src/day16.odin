@@ -122,7 +122,6 @@ d16run :: proc (p1, p2: ^strings.Builder) {
     rl.CloseWindow();
 }
 
-@(private="file")
 less_proc :: proc (l, r: int) -> bool {
     dist := (cast(^[]int)context.user_ptr)^;
     return dist[l] < dist[r];
