@@ -50,7 +50,7 @@ d1run :: proc (p1, p2: ^strings.Builder) {
     strings.write_int(p1, total);
 
     // ---------------------------------------------------
-    hash, _ := make(map[int]int);
+    hash := make(map[int]int);
     for r in second {
         hash[r] += 1;
     }

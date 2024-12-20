@@ -73,7 +73,7 @@ d15run :: proc (p1, p2: ^strings.Builder) {
     time :: 5 when EXAMPLE else 1;
     fnum := 0;
     rl.InitWindow(800, 800, strings.to_cstring(&title));
-    rl.SetTargetFPS(60);
+    rl.SetTargetFPS(120);
     for !rl.WindowShouldClose() {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
