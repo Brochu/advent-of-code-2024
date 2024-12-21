@@ -12,4 +12,4 @@ for %%A in (%*) do (
     )
 )
 
-odin build .\src\ %debug% %example% -out:AoC2024.exe
+odin run .\src\ %debug% %example% -out:AoC2024.exe -- %1
