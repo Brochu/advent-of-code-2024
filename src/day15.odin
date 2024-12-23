@@ -84,7 +84,7 @@ d15run :: proc (p1, p2: ^strings.Builder) {
 
     steps_p2 := make([][]u8, len(moves)+1);
     steps_p2[0] = slice.clone(grid_p2[:]);
-    for move, i in moves {
+    for move, i in moves[0:10] {
         if ok := sim_move_p2(grid_p2[:], robot_p2, move); ok {
             robot_p2 += move;
         }
@@ -196,8 +196,18 @@ sim_move_p2_impl :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
         return true;
     }
     else if grid[tidx] == '[' {
+        //if ok := sim_move_p2_impl(grid, target, move); ok {
+        //    sidx := (pos.y * (2*DIM)) + pos.x;
+        //    slice.swap(grid, sidx, tidx);
+        //    return true;
+        //}
     }
     else if grid[tidx] == ']' {
+        //if ok := sim_move_p2_impl(grid, target, move); ok {
+        //    sidx := (pos.y * (2*DIM)) + pos.x;
+        //    slice.swap(grid, sidx, tidx);
+        //    return true;
+        //}
     }
     else {
         fmt.printfln("[SIM] Invalid case, what tile is this? %c", grid[tidx]);
