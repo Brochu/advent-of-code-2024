@@ -19,6 +19,8 @@ Colors: map[u8]rl.Color = {
     'O' = rl.YELLOW,
     '@' = rl.GREEN,
     '.' = rl.GRAY,
+    '[' = rl.BLUE,
+    ']' = rl.RED,
 };
 
 @(private="file")
@@ -36,12 +38,27 @@ d15run :: proc (p1, p2: ^strings.Builder) {
     lines := strings.split_lines(elems[0]);
     DIM = len(lines);
     grid := transmute([]u8)strings.join(lines, "");
-    robot: Vec2;
-    for cell, i in grid do if cell == '@' {
-        robot = { i % DIM, i / DIM };
-        break;
+    grid_p2 := make([dynamic]u8, 0, 2*len(grid));
+    robot, robot_p2: Vec2;
+    for cell, i in grid {
+        if cell == '@' {
+            robot = { i % DIM, i / DIM };
+            robot_p2 = { i % DIM, i / DIM };
+            robot_p2.x *= 2;
+            append(&grid_p2, cell);
+            append(&grid_p2, '.');
+        }
+        else if cell == 'O'{
+            append_elems(&grid_p2, '[');
+            append_elems(&grid_p2, ']');
+        }
+        else {
+            append_elems(&grid_p2, cell);
+            append_elems(&grid_p2, cell);
+        }
     }
-    //fmt.printfln("Starting pos = %v", robot);
+    //fmt.printfln("Starting pos = %v ; %v", robot, robot_p2);
+    //fmt.printfln("grid len: %v ; grid_p2 len: %v", len(grid), len(grid_p2));
 
     chars, alloc := strings.replace_all(elems[1], "\n", "");
     moves := make([]Vec2, len(chars));
@@ -65,12 +82,34 @@ d15run :: proc (p1, p2: ^strings.Builder) {
         }
     }
 
-    strings.write_int(p1, res_p1);
-    strings.write_int(p2, 15);
+    steps_p2 := make([][]u8, len(moves)+1);
+    steps_p2[0] = slice.clone(grid_p2[:]);
+    for move, i in moves {
+        if ok := sim_move_p2(grid_p2[:], robot_p2, move); ok {
+            robot_p2 += move;
+        }
+        steps_p2[i+1] = slice.clone(grid_p2[:]);
+    }
 
+    res_p2 := 0;
+    for cell, i in grid_p2 {
+        if cell == '[' {
+            pos := Vec2 { i % DIM, i / DIM };
+            gps := (pos.y * 100) + pos.x;
+            res_p2 += gps;
+        }
+    }
+
+    strings.write_int(p1, res_p1);
+    strings.write_int(p2, res_p2);
+
+    P2 :: true;
     xoff, yoff: c.int : 2, 2;
     spacing: c.int : 80 when EXAMPLE else 16;
-    time :: 5 when EXAMPLE else 1;
+    minus: c.int : 5 when EXAMPLE else 2;
+    WIDTH := 2*DIM if P2 else DIM;
+    HEIGHT := DIM;
+    time :: 10 when EXAMPLE else 1;
     fnum := 0;
     rl.InitWindow(800, 800, strings.to_cstring(&title));
     rl.SetTargetFPS(120);
@@ -78,20 +117,27 @@ d15run :: proc (p1, p2: ^strings.Builder) {
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
-        for y in 0..<DIM do for x in 0..<DIM {
-            idx := (y * DIM) + x;
-            xpos, ypos := c.int(x) * spacing, c.int(y) * spacing;
-            char := steps[fnum/time][idx];
+        for y in 0..<HEIGHT do for x in 0..<WIDTH {
+            idx := (y * WIDTH) + x;
+            xspace := spacing/2 if P2 else spacing;
+            xpos, ypos := c.int(x) * xspace, c.int(y) * spacing;
+            char: u8;
+            if P2 {
+                char = steps_p2[fnum/time][idx];
+            } else {
+                char = steps[fnum/time][idx];
+            }
 
-            rl.DrawRectangleLines(xpos + xoff, ypos + yoff, spacing-5, spacing-5, Colors[char]);
-            rl.DrawText(rl.TextFormat("%i", fnum/time), 10, 780, 15, rl.SKYBLUE);
+            rl.DrawRectangleLines(xpos + xoff, ypos + yoff, xspace-minus, spacing-minus, Colors[char]);
         }
+        rl.DrawText(rl.TextFormat("%i", fnum/time), 10, 780, 15, rl.SKYBLUE);
         rl.EndDrawing();
         fnum = math.clamp(fnum+1, 0, time*len(steps)-1);
     }
     rl.CloseWindow();
 }
 
+@(private="file")
 sim_move :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
     target := pos + move;
     tidx := (target.y * DIM) + target.x;
@@ -119,6 +165,40 @@ sim_move :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
     }
     else {
         fmt.printfln("[SIM] Invalid case, what tile is this? %c", grid[tidx]);
+        unimplemented();
+    }
+
+    return false;
+}
+
+@(private="file")
+sim_move_p2 :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
+    target := pos + move;
+    tidx := (target.y * (2*DIM)) + target.x;
+    //fmt.printfln("[SIM] from %v to %v (%v)", pos, target, move);
+
+    if grid[tidx] == '#' {
+        // hit a wall, no movement
+        //fmt.printfln("[SIM] Hit wall at %v, stop", target);
+        return false
+    }
+    else if grid[tidx] == '.' {
+        // found empty spot, move
+        //fmt.printfln("[SIM] found empty spot at %v, swap", target);
+        sidx := (pos.y * (2*DIM)) + pos.x;
+        slice.swap(grid, sidx, tidx);
+        return true;
+    }
+    else if grid[tidx] == '[' || grid[tidx] == ']' {
+        if ok := sim_move_p2(grid, target, move); ok {
+            sidx := (pos.y * (2*DIM)) + pos.x;
+            slice.swap(grid, sidx, tidx);
+            return true;
+        }
+    }
+    else {
+        sidx := (pos.y * (2*DIM)) + pos.x;
+        fmt.printfln("[SIM_P2] Invalid case, what tile is this? from %c to %c", grid[sidx], grid[tidx]);
         unimplemented();
     }
 
