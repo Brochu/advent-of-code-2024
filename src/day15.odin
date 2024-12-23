@@ -84,7 +84,7 @@ d15run :: proc (p1, p2: ^strings.Builder) {
 
     steps_p2 := make([][]u8, len(moves)+1);
     steps_p2[0] = slice.clone(grid_p2[:]);
-    for move, i in moves[0:10] {
+    for move, i in moves {
         if ok := sim_move_p2(grid_p2[:], robot_p2, move); ok {
             robot_p2 += move;
         }
@@ -172,47 +172,8 @@ sim_move :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
 }
 
 @(private="file")
-sim_move_p2 :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
-    ok := sim_move_p2_impl(grid, pos, move);
-    if ok {
-        target := pos + move;
-        tidx := (target.y * (2*DIM)) + target.x;
-        sidx := (pos.y * (2*DIM)) + pos.x;
-        slice.swap(grid, sidx, tidx);
-    }
-
-    return ok;
-}
-
-@(private="file")
-sim_move_p2_impl :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
-    target := pos + move;
-    tidx := (target.y * (2*DIM)) + target.x;
-
-    if grid[tidx] == '#' {
-        return false;
-    }
-    else if grid[tidx] == '.' {
-        return true;
-    }
-    else if grid[tidx] == '[' {
-        //if ok := sim_move_p2_impl(grid, target, move); ok {
-        //    sidx := (pos.y * (2*DIM)) + pos.x;
-        //    slice.swap(grid, sidx, tidx);
-        //    return true;
-        //}
-    }
-    else if grid[tidx] == ']' {
-        //if ok := sim_move_p2_impl(grid, target, move); ok {
-        //    sidx := (pos.y * (2*DIM)) + pos.x;
-        //    slice.swap(grid, sidx, tidx);
-        //    return true;
-        //}
-    }
-    else {
-        fmt.printfln("[SIM] Invalid case, what tile is this? %c", grid[tidx]);
-        unimplemented();
-    }
-
+sim_move_p2 :: proc (grid: []u8, pos, move: Vec2, size: int) -> bool {
+    //TODO: Implement same logic as above but take size into account of boxes
+    // When size == 2, check for '#.' or '.#' or '##' for blocks etc ...
     return false;
 }
