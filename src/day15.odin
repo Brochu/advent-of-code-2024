@@ -109,7 +109,7 @@ d15run :: proc (p1, p2: ^strings.Builder) {
     minus: c.int : 5 when EXAMPLE else 2;
     WIDTH := 2*DIM if P2 else DIM;
     HEIGHT := DIM;
-    time :: 10 when EXAMPLE else 1;
+    time :: 100 when EXAMPLE else 1;
     fnum := 0;
     rl.InitWindow(800, 800, strings.to_cstring(&title));
     rl.SetTargetFPS(120);
@@ -186,13 +186,13 @@ sim_move_p2 :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
         // found empty spot, move
         //fmt.printfln("[SIM] found empty spot at %v, swap", target);
         sidx := (pos.y * (2*DIM)) + pos.x;
-        slice.swap(grid, sidx, tidx);
+        swap_p2(grid, target, move, sidx, tidx);
         return true;
     }
     else if grid[tidx] == '[' || grid[tidx] == ']' {
         if ok := sim_move_p2(grid, target, move); ok {
             sidx := (pos.y * (2*DIM)) + pos.x;
-            slice.swap(grid, sidx, tidx);
+            swap_p2(grid, target, move, sidx, tidx);
             return true;
         }
     }
@@ -203,4 +203,25 @@ sim_move_p2 :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
     }
 
     return false;
+}
+
+@(private="file")
+swap_p2 :: proc (grid: []u8, target, move: Vec2, sidx, tidx: int) {
+    fmt.printfln("[SWAP] from %v (%c) to %v (%c)", sidx, grid[sidx], tidx, grid[tidx]);
+    if grid[sidx] == '@' {
+        slice.swap(grid, sidx, tidx);
+    }
+    else if grid[sidx] == '[' {
+        // Handle the left big box moving case
+        if ok := sim_move_p2(grid, { target.x + 1, target.y }, move); ok {
+            slice.swap(grid, sidx, tidx);
+            slice.swap(grid, sidx+1, tidx+1);
+        }
+    }
+    else if grid[sidx] == ']' {
+        //if ok := sim_move_p2(grid, { target.x - 1, target.y }, move); ok {
+        //    slice.swap(grid, sidx, tidx);
+        //    slice.swap(grid, sidx-1, tidx-1);
+        //}
+    }
 }
