@@ -29,8 +29,8 @@ N, THREADS :: 2000, 8;
 d22run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     lines := strings.split_lines(input);
-    //in_secrets := slice.mapper(lines, proc (line: string) -> int { return strconv.atoi(line); });
-    in_secrets: []int = { 123 };
+    in_secrets := slice.mapper(lines, proc (line: string) -> int { return strconv.atoi(line); });
+    //in_secrets: []int = { 123 };
     out_values = make([]int, len(in_secrets));
     out_prices = make([]PricePoint, len(in_secrets) * N);
 
@@ -62,13 +62,13 @@ d22run :: proc (p1, p2: ^strings.Builder) {
 
     //fmt.printfln("-> %v", in_secrets);
     //fmt.printfln("-> %v", out_values);
-    for i in 0..<len(in_secrets) {
-        s := out_prices[i*N : (i*N)+N];
-        out := slice.mapper(s, proc (pp: PricePoint) -> i8 {
-            return pp.diff;
-        });
-        fmt.printfln("[%v] : %v", len(out), out);
-    }
+    //for i in 0..<len(in_secrets) {
+    //    s := out_prices[i*N : (i*N)+N];
+    //    out := slice.mapper(s, proc (pp: PricePoint) -> i8 {
+    //        return pp.diff;
+    //    });
+    //    fmt.printfln("[%v] : %v", len(out), out);
+    //}
 
     strings.write_int(p1, slice.reduce(out_values, 0, proc (acc, val: int) -> int {
         return acc + val;
