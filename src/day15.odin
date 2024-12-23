@@ -173,55 +173,36 @@ sim_move :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
 
 @(private="file")
 sim_move_p2 :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
+    ok := sim_move_p2_impl(grid, pos, move);
+    if ok {
+        target := pos + move;
+        tidx := (target.y * (2*DIM)) + target.x;
+        sidx := (pos.y * (2*DIM)) + pos.x;
+        slice.swap(grid, sidx, tidx);
+    }
+
+    return ok;
+}
+
+@(private="file")
+sim_move_p2_impl :: proc (grid: []u8, pos: Vec2, move: Vec2) -> bool {
     target := pos + move;
     tidx := (target.y * (2*DIM)) + target.x;
-    //fmt.printfln("[SIM] from %v to %v (%v)", pos, target, move);
 
     if grid[tidx] == '#' {
-        // hit a wall, no movement
-        //fmt.printfln("[SIM] Hit wall at %v, stop", target);
-        return false
+        return false;
     }
     else if grid[tidx] == '.' {
-        // found empty spot, move
-        //fmt.printfln("[SIM] found empty spot at %v, swap", target);
-        sidx := (pos.y * (2*DIM)) + pos.x;
-        swap_p2(grid, target, move, sidx, tidx);
         return true;
     }
-    else if grid[tidx] == '[' || grid[tidx] == ']' {
-        if ok := sim_move_p2(grid, target, move); ok {
-            sidx := (pos.y * (2*DIM)) + pos.x;
-            swap_p2(grid, target, move, sidx, tidx);
-            return true;
-        }
+    else if grid[tidx] == '[' {
+    }
+    else if grid[tidx] == ']' {
     }
     else {
-        sidx := (pos.y * (2*DIM)) + pos.x;
-        fmt.printfln("[SIM_P2] Invalid case, what tile is this? from %c to %c", grid[sidx], grid[tidx]);
+        fmt.printfln("[SIM] Invalid case, what tile is this? %c", grid[tidx]);
         unimplemented();
     }
 
     return false;
-}
-
-@(private="file")
-swap_p2 :: proc (grid: []u8, target, move: Vec2, sidx, tidx: int) {
-    fmt.printfln("[SWAP] from %v (%c) to %v (%c)", sidx, grid[sidx], tidx, grid[tidx]);
-    if grid[sidx] == '@' {
-        slice.swap(grid, sidx, tidx);
-    }
-    else if grid[sidx] == '[' {
-        // Handle the left big box moving case
-        if ok := sim_move_p2(grid, { target.x + 1, target.y }, move); ok {
-            slice.swap(grid, sidx, tidx);
-            slice.swap(grid, sidx+1, tidx+1);
-        }
-    }
-    else if grid[sidx] == ']' {
-        //if ok := sim_move_p2(grid, { target.x - 1, target.y }, move); ok {
-        //    slice.swap(grid, sidx, tidx);
-        //    slice.swap(grid, sidx-1, tidx-1);
-        //}
-    }
 }
