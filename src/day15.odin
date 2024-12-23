@@ -85,7 +85,7 @@ d15run :: proc (p1, p2: ^strings.Builder) {
     steps_p2 := make([][]u8, len(moves)+1);
     steps_p2[0] = slice.clone(grid_p2[:]);
     for move, i in moves {
-        if ok := sim_move_p2(grid_p2[:], robot_p2, move); ok {
+        if ok := sim_move_p2(grid_p2[:], robot_p2, move, 1); ok {
             robot_p2 += move;
         }
         steps_p2[i+1] = slice.clone(grid_p2[:]);
