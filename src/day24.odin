@@ -2,6 +2,7 @@ package main
 import "core:c"
 import "core:fmt"
 import "core:slice"
+import "core:slice/heap"
 import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
@@ -9,12 +10,83 @@ import rl "vendor:raylib"
 @(private="file")
 input_file :: "../data/day24.ex" when EXAMPLE else "../data/day24.in"
 
+@(private="file")
+signals: map[string]bool;
+
+@(private="file")
+Gate :: struct {
+    left: string,
+    right: string,
+    op: string,
+    out: string,
+};
+
+@(private="file")
+pending: [dynamic]Gate;
+
+@(private="file")
+Result :: struct {
+    name: string,
+    signal: bool,
+};
+
 d24run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     elems := strings.split(input, "\n\n");
-    fmt.printfln("Signals: %v", elems[0]);
 
-    strings.write_string(p1, "Upcoming...");
+    signals = make(map[string]bool);
+    for s in strings.split_lines_iterator(&elems[0]) {
+        vals := strings.split(s, ": ");
+        signals[vals[0]] = vals[1] == "1";
+    }
+    //fmt.printfln("signals: %v", signals);
+
+    pending = make([dynamic]Gate, 0, 512);
+    for g in strings.split_lines_iterator(&elems[1]) {
+        l := g[0:3];
+        op := strings.trim_space(g[4:7]);
+        end := strings.split_n(g[4:], " ", 2)[1];
+        others := strings.split(end, " -> ");
+        append(&pending, Gate{ l, others[0], op, others[1] });
+        heap.push(pending[:], heap_proc);
+    }
+    //fmt.println("gates:");
+    //for gate in pending {
+    //    fmt.printfln("  %v", gate);
+    //}
+
+    for len(pending) > 0 {
+        heap.pop(pending[:], heap_proc);
+        curr := pop(&pending);
+
+        out: bool;
+        switch (curr.op) {
+        case "OR" : out = signals[curr.left] || signals[curr.right];
+        case "AND": out = signals[curr.left] && signals[curr.right];
+        case "XOR": out = signals[curr.left] ~  signals[curr.right];
+        }
+        signals[curr.out] = out;
+    }
+
+    res := make([dynamic]Result, 0, 256);
+    for k, v in signals do append(&res, Result{ k, v });
+    slice.sort_by(res[:], proc (l, r: Result) -> bool {
+        return strings.compare(l.name, r.name) < 0;
+    });
+    idx, _ := slice.linear_search_proc(res[:], proc (r: Result) -> bool {
+        return strings.starts_with(r.name, "z");
+    });
+
+    val_p1 := 0;
+    fmt.println("signals:");
+    #reverse for s in res[idx:] {
+        val_p1 <<= 1;
+        if s.signal do val_p1 += 1;
+
+        fmt.printfln("  %v", s);
+    }
+
+    strings.write_int(p1, val_p1);
     strings.write_string(p2, "Upcoming...");
 
     /*
@@ -28,4 +100,16 @@ d24run :: proc (p1, p2: ^strings.Builder) {
     }
     rl.CloseWindow();
     */
+}
+
+heap_proc :: proc (l, r: Gate) -> bool {
+    lcnt := 0;
+    if l.left in signals do lcnt += 1;
+    if l.right in signals do lcnt += 1;
+
+    rcnt := 0;
+    if r.left in signals do rcnt += 1;
+    if r.right in signals do rcnt += 1;
+
+    return lcnt < rcnt;
 }
