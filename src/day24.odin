@@ -11,7 +11,7 @@ import rl "vendor:raylib"
 input_file :: "../data/day24.ex" when EXAMPLE else "../data/day24.in"
 
 @(private="file")
-signals: map[string]bool;
+signals: map[string]u8;
 
 @(private="file")
 Gate :: struct {
@@ -27,17 +27,17 @@ pending: [dynamic]Gate;
 @(private="file")
 Result :: struct {
     name: string,
-    signal: bool,
+    signal: u8,
 };
 
 d24run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     elems := strings.split(input, "\n\n");
 
-    signals = make(map[string]bool);
+    signals = make(map[string]u8);
     for s in strings.split_lines_iterator(&elems[0]) {
         vals := strings.split(s, ": ");
-        signals[vals[0]] = vals[1] == "1";
+        signals[vals[0]] = cast(u8)strconv.atoi(vals[1]);
     }
     //fmt.printfln("signals: %v", signals);
 
@@ -58,14 +58,18 @@ d24run :: proc (p1, p2: ^strings.Builder) {
     for len(pending) > 0 {
         heap.pop(pending[:], heap_proc);
         curr := pop(&pending);
+        //fmt.printfln("signals: %v", signals);
+        //fmt.printfln("gate: %v", curr);
 
-        out: bool;
-        switch (curr.op) {
-        case "OR" : out = signals[curr.left] || signals[curr.right];
-        case "AND": out = signals[curr.left] && signals[curr.right];
-        case "XOR": out = signals[curr.left] ~  signals[curr.right];
+        if strings.compare(curr.op, "OR") == 0 {
+            signals[curr.out] = signals[curr.left] | signals[curr.right];
         }
-        signals[curr.out] = out;
+        else if strings.compare(curr.op, "AND") == 0 {
+            signals[curr.out] = signals[curr.left] & signals[curr.right];
+        }
+        else if strings.compare(curr.op, "XOR") == 0 {
+            signals[curr.out] = signals[curr.left] ~ signals[curr.right];
+        }
     }
 
     res := make([dynamic]Result, 0, 256);
@@ -77,16 +81,16 @@ d24run :: proc (p1, p2: ^strings.Builder) {
         return strings.starts_with(r.name, "z");
     });
 
-    val_p1 := 0;
+    val_p1: u64 = 0;
     fmt.println("signals:");
     #reverse for s in res[idx:] {
         val_p1 <<= 1;
-        if s.signal do val_p1 += 1;
+        if s.signal == 1 do val_p1 += 1;
 
         fmt.printfln("  %v", s);
     }
 
-    strings.write_int(p1, val_p1);
+    strings.write_u64(p1, val_p1);
     strings.write_string(p2, "Upcoming...");
 
     /*
