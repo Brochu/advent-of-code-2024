@@ -35,6 +35,7 @@ solutions: []day_proc = {
     d21run,
     d22run,
     d23run,
+    d24run,
 };
 title : strings.Builder;
 
