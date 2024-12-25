@@ -21,6 +21,18 @@ Colors: map[u8]rl.Color = {
     '*' = rl.YELLOW,
 };
 
+@(private="file")
+DColors: map[Vec2]rl.Color = {
+    { 0, 0 }        = rl.GRAY,
+    DIRS[Dir.Left]  = rl.RED,
+    DIRS[Dir.Right] = rl.BLUE,
+    DIRS[Dir.Up]    = rl.GREEN,
+    DIRS[Dir.Down]  = rl.YELLOW,
+};
+
+@(private="file")
+path_set: map[int]Phantom;
+
 /*
 Code is basically the same for both parts. I use dfs to calcualte the original path and number of steps
 from start to finish at each point along the way. I then walk the path and find the number of cheats to
@@ -31,22 +43,42 @@ I loop from 2 to 20 and accumulate the number of cheats for a potential diamond 
 manhattan distance of each iteration.
 */
 d20run :: proc (p1, p2: ^strings.Builder) {
+    DIRS := DIRS;
+
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     lines := strings.split_lines(input);
     DIM = len(lines);
     grid := transmute([]u8)strings.join(lines, "");
+    path := make([]Vec2, len(grid));
 
-    start, end := 0, 0;
+
+    start, end: Vec2;
     for cell, i in grid {
-        if cell == 'S' do start = i;
-        else if cell == 'E' do end = i;
+        if cell == 'S' do start = coord_idx(i);
+        else if cell == 'E' do end = coord_idx(i);
     }
-    //fmt.printfln("[START] (%v) %v", start, Vec2 { start % DIM, start / DIM });
-    //fmt.printfln("[END]   (%v) %v", end, Vec2 { end % DIM, end / DIM });
 
-    strings.write_int(p1, 20);
+    curr := start;
+    for curr != end do for d in Dir {
+        cidx := idx_coord(curr);
+        path_set[cidx] = {};
+
+        target := curr + DIRS[d];
+        tidx := idx_coord(target);
+        //fmt.printfln("    test: %v, [%c]", target, grid[tidx]);
+
+        if (grid[tidx] == '.' || grid[tidx] == 'E') && !(tidx in path_set) {
+            path[cidx] = target - curr;
+            curr = target;
+            break;
+        }
+    }
+    //fmt.printfln("[%v] SET: %v", len(path_set), path_set);
+
+    strings.write_int(p1, len(path_set));
     strings.write_int(p2, 20);
 
+    /*
     off: c.int : 5 when EXAMPLE else 50;
     spacing: c.int : 53 when EXAMPLE else 5;
     minus: c.int : 5 when EXAMPLE else 1;
@@ -63,10 +95,42 @@ d20run :: proc (p1, p2: ^strings.Builder) {
             ypos := off + (spacing * c.int(y));
             idx := (y * DIM) + x;
 
-            rl.DrawRectangleLines(xpos, ypos, spacing-minus, spacing-minus, Colors[grid[idx]]);
+            rl.DrawRectangleLines(xpos, ypos, spacing-minus, spacing-minus, rl.WHITE if idx in path_set else rl.GRAY);
+            if path[idx] == DIRS[Dir.Up] {
+                rl.DrawTriangleLines(
+                    {cast(f32)(xpos+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
+                    {cast(f32)(xpos-5+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
+                    {cast(f32)(xpos+5+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
+                DColors[path[idx]]);
+            }
+            else if path[idx] == DIRS[Dir.Down] {
+                rl.DrawTriangleLines(
+                    {cast(f32)(xpos+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
+                    {cast(f32)(xpos-5+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
+                    {cast(f32)(xpos+5+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
+                DColors[path[idx]]);
+            }
+            else if path[idx] == DIRS[Dir.Left] {
+                rl.DrawTriangleLines(
+                    {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos+(spacing/2))},
+                    {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos+5+(spacing/2))},
+                    {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos-5+(spacing/2))},
+                DColors[path[idx]]);
+            }
+            else if path[idx] == DIRS[Dir.Right] {
+                rl.DrawTriangleLines(
+                    {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos+(spacing/2))},
+                    {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos+5+(spacing/2))},
+                    {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos-5+(spacing/2))},
+                DColors[path[idx]]);
+            }
         }
 
         rl.EndDrawing();
     }
     rl.CloseWindow();
+    */
 }
+
+idx_coord :: proc (coord: Vec2) -> int { return (coord.y * DIM) + coord.x }
+coord_idx :: proc (idx: int) -> Vec2 { return {idx % DIM, idx / DIM} }
