@@ -81,6 +81,7 @@ d20run :: proc (p1, p2: ^strings.Builder) {
         }
     }
     //fmt.printfln("[%v] SET: %v", len(path_set), path_set);
+    //TODO: Start checking possible cheats at all steps?
 
     strings.write_int(p1, len(path_set));
     strings.write_int(p2, 20);
