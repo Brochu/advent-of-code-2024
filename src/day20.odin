@@ -33,6 +33,12 @@ DColors: map[Vec2]rl.Color = {
 @(private="file")
 path_set: map[int]Phantom;
 
+@(private="file")
+Node :: struct {
+    dir: Vec2,
+    cost: int,
+}
+
 /*
 Code is basically the same for both parts. I use dfs to calcualte the original path and number of steps
 from start to finish at each point along the way. I then walk the path and find the number of cheats to
@@ -49,7 +55,7 @@ d20run :: proc (p1, p2: ^strings.Builder) {
     lines := strings.split_lines(input);
     DIM = len(lines);
     grid := transmute([]u8)strings.join(lines, "");
-    path := make([]Vec2, len(grid));
+    path := make([]Node, len(grid));
 
 
     start, end: Vec2;
@@ -68,7 +74,8 @@ d20run :: proc (p1, p2: ^strings.Builder) {
         //fmt.printfln("    test: %v, [%c]", target, grid[tidx]);
 
         if (grid[tidx] == '.' || grid[tidx] == 'E') && !(tidx in path_set) {
-            path[cidx] = target - curr;
+            path[cidx].dir = target - curr;
+            path[cidx].cost = len(path_set);
             curr = target;
             break;
         }
@@ -78,7 +85,6 @@ d20run :: proc (p1, p2: ^strings.Builder) {
     strings.write_int(p1, len(path_set));
     strings.write_int(p2, 20);
 
-    /*
     off: c.int : 5 when EXAMPLE else 50;
     spacing: c.int : 53 when EXAMPLE else 5;
     minus: c.int : 5 when EXAMPLE else 1;
@@ -95,41 +101,44 @@ d20run :: proc (p1, p2: ^strings.Builder) {
             ypos := off + (spacing * c.int(y));
             idx := (y * DIM) + x;
 
-            rl.DrawRectangleLines(xpos, ypos, spacing-minus, spacing-minus, rl.WHITE if idx in path_set else rl.GRAY);
-            if path[idx] == DIRS[Dir.Up] {
+            col := DColors[path[idx].dir];
+            rl.DrawRectangleLines(xpos, ypos, spacing-minus, spacing-minus, col);
+            when EXAMPLE {
+            if path[idx].dir == DIRS[Dir.Up] {
                 rl.DrawTriangleLines(
                     {cast(f32)(xpos+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
                     {cast(f32)(xpos-5+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
                     {cast(f32)(xpos+5+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
-                DColors[path[idx]]);
+                DColors[path[idx].dir]);
             }
-            else if path[idx] == DIRS[Dir.Down] {
+            else if path[idx].dir == DIRS[Dir.Down] {
                 rl.DrawTriangleLines(
                     {cast(f32)(xpos+(spacing/2)), cast(f32)(ypos+10+(spacing/2))},
                     {cast(f32)(xpos-5+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
                     {cast(f32)(xpos+5+(spacing/2)), cast(f32)(ypos-10+(spacing/2))},
-                DColors[path[idx]]);
+                DColors[path[idx].dir]);
             }
-            else if path[idx] == DIRS[Dir.Left] {
+            else if path[idx].dir == DIRS[Dir.Left] {
                 rl.DrawTriangleLines(
                     {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos+(spacing/2))},
                     {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos+5+(spacing/2))},
                     {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos-5+(spacing/2))},
-                DColors[path[idx]]);
+                DColors[path[idx].dir]);
             }
-            else if path[idx] == DIRS[Dir.Right] {
+            else if path[idx].dir == DIRS[Dir.Right] {
                 rl.DrawTriangleLines(
                     {cast(f32)(xpos+10+(spacing/2)), cast(f32)(ypos+(spacing/2))},
                     {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos+5+(spacing/2))},
                     {cast(f32)(xpos-10+(spacing/2)), cast(f32)(ypos-5+(spacing/2))},
-                DColors[path[idx]]);
+                DColors[path[idx].dir]);
+            }
+            rl.DrawText(rl.TextFormat("%i", path[idx].cost), xpos+(spacing/2), ypos, 15, rl.WHITE);
             }
         }
 
         rl.EndDrawing();
     }
     rl.CloseWindow();
-    */
 }
 
 idx_coord :: proc (coord: Vec2) -> int { return (coord.y * DIM) + coord.x }
