@@ -11,24 +11,20 @@ import rl "vendor:raylib"
 input_file :: "../data/day24.ex" when EXAMPLE else "../data/day24.in"
 
 @(private="file")
-signals: map[string]u8;
-
-@(private="file")
 Gate :: struct {
     left: string,
     right: string,
     op: string,
-    out: string,
 };
 
 @(private="file")
-pending: [dynamic]Gate;
+signals: map[string]u8;
 
 @(private="file")
-Result :: struct {
-    name: string,
-    signal: u8,
-};
+outputs: map[string]Gate;
+
+@(private="file")
+cache: map[Gate]u8;
 
 d24run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
@@ -41,53 +37,26 @@ d24run :: proc (p1, p2: ^strings.Builder) {
     }
     //fmt.printfln("signals: %v", signals);
 
-    pending = make([dynamic]Gate, 0, 512);
+    outputs = make(map[string]Gate);
     for g in strings.split_lines_iterator(&elems[1]) {
         l := g[0:3];
         op := strings.trim_space(g[4:7]);
         end := strings.split_n(g[4:], " ", 2)[1];
         others := strings.split(end, " -> ");
-        append(&pending, Gate{ l, others[0], op, others[1] });
-        heap.push(pending[:], heap_proc);
+        outputs[others[1]] = Gate{ l, others[0], op };
     }
     //fmt.println("gates:");
-    //for gate in pending {
-    //    fmt.printfln("  %v", gate);
+    //for out, g in outputs {
+    //    fmt.printfln("  [%v]->%v", out, g);
     //}
-
-    for len(pending) > 0 {
-        heap.pop(pending[:], heap_proc);
-        curr := pop(&pending);
-        //fmt.printfln("signals: %v", signals);
-        //fmt.printfln("gate: %v", curr);
-
-        if strings.compare(curr.op, "OR") == 0 {
-            signals[curr.out] = signals[curr.left] | signals[curr.right];
-        }
-        else if strings.compare(curr.op, "AND") == 0 {
-            signals[curr.out] = signals[curr.left] & signals[curr.right];
-        }
-        else if strings.compare(curr.op, "XOR") == 0 {
-            signals[curr.out] = signals[curr.left] ~ signals[curr.right];
-        }
-    }
-
-    res := make([dynamic]Result, 0, 256);
-    for k, v in signals do append(&res, Result{ k, v });
-    slice.sort_by(res[:], proc (l, r: Result) -> bool {
-        return strings.compare(l.name, r.name) < 0;
-    });
-    idx, _ := slice.linear_search_proc(res[:], proc (r: Result) -> bool {
-        return strings.starts_with(r.name, "z");
-    });
+    keys, _ := slice.map_keys(outputs)
+    zs := slice.filter(keys, proc (key: string) -> bool { return strings.starts_with(key, "z") });
+    slice.sort(zs);
 
     val_p1: u64 = 0;
-    fmt.println("signals:");
-    #reverse for s in res[idx:] {
+    #reverse for z in zs {
         val_p1 <<= 1;
-        if s.signal == 1 do val_p1 += 1;
-
-        fmt.printfln("  %v", s);
+        val_p1 |= cast(u64)eval(z);
     }
 
     strings.write_u64(p1, val_p1);
@@ -106,14 +75,18 @@ d24run :: proc (p1, p2: ^strings.Builder) {
     */
 }
 
-heap_proc :: proc (l, r: Gate) -> bool {
-    lcnt := 0;
-    if l.left in signals do lcnt += 1;
-    if l.right in signals do lcnt += 1;
+eval :: proc (key: string) -> u8 {
+    if res, ok := signals[key]; ok do return res;
 
-    rcnt := 0;
-    if r.left in signals do rcnt += 1;
-    if r.right in signals do rcnt += 1;
+    gate := outputs[key];
+    if res, ok := cache[gate]; ok do return res;
 
-    return lcnt < rcnt;
+    out: u8 = 0;
+    switch gate.op {
+    case "OR": out = eval(gate.left)  | eval(gate.right);
+    case "AND": out = eval(gate.left) & eval(gate.right);
+    case "XOR": out = eval(gate.left) ~ eval(gate.right);
+    }
+    cache[gate] = out;
+    return out;
 }
