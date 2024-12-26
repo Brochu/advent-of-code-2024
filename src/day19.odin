@@ -12,6 +12,9 @@ input_file :: "../data/day19.ex" when EXAMPLE else "../data/day19.in"
 @(private="file")
 cache: map[string]bool;
 
+@(private="file")
+cache_p2: map[string]int;
+
 d19run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     elems := strings.split(input, "\n\n");
@@ -32,7 +35,7 @@ d19run :: proc (p1, p2: ^strings.Builder) {
         inv: []string = (cast(^[]string)context.user_ptr)^;
         return check_p1(d, inv);
     });
-    count_p2 := slice.mapper(designs[0:1], proc (d: string) -> int {
+    count_p2 := slice.mapper(designs[:], proc (d: string) -> int {
         inv: []string = (cast(^[]string)context.user_ptr)^;
         count := 0;
         enum_p2(d, inv, &count);
@@ -75,5 +78,19 @@ check_p1 :: proc (des: string, inv: []string) -> bool {
 }
 
 enum_p2 :: proc (des: string, inv: []string, count: ^int) {
-    count^ += 1;
+    if len(des) == 0 {
+        count^ += 1;
+        return;
+    }
+    //TODO: Need to add cache here to make the computation faster
+    //if res, ok := cache_p2[des]; ok {
+    //    count^ += res;
+    //    return;
+    //}
+
+    for towel in inv {
+        if strings.has_prefix(des, towel) {
+            enum_p2(strings.trim_prefix(des, towel), inv, count);
+        }
+    }
 }
