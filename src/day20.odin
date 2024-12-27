@@ -14,8 +14,8 @@ DIM := 0;
 
 @(private="file")
 Colors: map[u8]rl.Color = {
-    'S' = rl.RED,
-    'E' = rl.GREEN,
+    'S' = rl.WHITE,
+    'E' = rl.WHITE,
     '#' = rl.SKYBLUE,
     '.' = rl.GRAY,
     '*' = rl.YELLOW,
@@ -49,6 +49,7 @@ I loop from 2 to 20 and accumulate the number of cheats for a potential diamond 
 manhattan distance of each iteration.
 */
 d20run :: proc (p1, p2: ^strings.Builder) {
+    rl.SetTraceLogLevel(rl.TraceLogLevel.WARNING);
     DIRS := DIRS;
 
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
@@ -103,6 +104,9 @@ d20run :: proc (p1, p2: ^strings.Builder) {
             idx := (y * DIM) + x;
 
             col := DColors[path[idx].dir];
+            if grid[idx] == 'S' || grid[idx] == 'E' {
+                col = Colors[grid[idx]];
+            }
             rl.DrawRectangleLines(xpos, ypos, spacing-minus, spacing-minus, col);
             when EXAMPLE {
             if path[idx].dir == DIRS[Dir.Up] {
