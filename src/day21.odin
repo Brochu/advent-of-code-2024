@@ -7,35 +7,48 @@ import "core:strings"
 import rl "vendor:raylib"
 
 @(private="file")
-input_file :: "../data/day21.ex" when EXAMPLE else "../data/day21.in"
-
-@(private="file")
-Keypads :: enum {
-    OURS,
-    ROB1,
-    ROB2,
-    NUMS,
-};
-
-@(private="file")
-states: [Keypads]int = {
-    .OURS = 2,
-    .ROB1 = 2,
-    .ROB2 = 2,
-    .NUMS = 11,
-};
+input_file :: "../data/day21.ex" when EXAMPLE else "../data/day21.in";
 
 d21run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     codes := strings.split_lines(input);
 
-    fmt.println("CODES:");
-    for code in codes[0:1] {
-        fmt.printfln("    %v", code);
-        print_states();
+    keypas_pos: map[byte]Vec2 = {
+        '7' = {0, 0}, '8' = {1, 0}, '9' = {2, 0},
+        '4' = {0, 1}, '5' = {1, 1}, '6' = {2, 1},
+        '1' = {0, 2}, '2' = {1, 2}, '3' = {2, 2},
+                      '0' = {1, 3}, 'A' = {2, 3},
     }
 
-    strings.write_string(p1, "Upcoming...");
+    dirs_pos: map[byte]Vec2 = {
+                      '^' = {1, 0}, 'A' = {2, 0},
+        '<' = {0, 1}, 'v' = {1, 1}, '>' = {2, 1},
+    }
+    pad_state: [3]byte = 'A';
+
+    total := 0;
+    for code in codes[2:3] {
+        current := code;
+        val, ok := strconv.parse_int(current, 10);
+        fmt.printfln("CODE: '%v' (value = '%v')", current, val);
+
+        next := strings.builder_make_len_cap(0, 256);
+        defer strings.builder_destroy(&next);
+
+        for round in 0..<3 {
+            for target in current {
+                expand(keypas_pos if round == 0 else dirs_pos, cast(byte)target, &pad_state[round], &next);
+            }
+            current = strings.clone(strings.to_string(next));
+            strings.builder_reset(&next);
+            fmt.printfln("round %v: %v (%v)", round, current, len(current));
+        }
+
+        total += val * len(current);
+        fmt.printfln("CODE COMPLEXITY: %v * %v = %v", val, len(current), val * len(current));
+    }
+
+    strings.write_int(p1, total);
     strings.write_string(p2, "Upcoming...");
 
     /*
@@ -51,33 +64,27 @@ d21run :: proc (p1, p2: ^strings.Builder) {
     */
 }
 
-solve_numeric :: proc (idx: int) -> u8 {
-    switch idx {
-    case 0: return '7'; case 1: return '8'; case 2: return '9';
-    case 3: return '4'; case 4: return '5'; case 5: return '6';
-    case 6: return '1'; case 7: return '2'; case 8: return '3';
-    case 9: unimplemented("[SOLVE] Invalid key");
-    case 10: return '0';
-    case 11: return 'A';
+expand :: proc(pos_map: map[byte]Vec2, to: byte, state: ^byte, out: ^strings.Builder) {
+    diff := pos_map[to] - pos_map[state^];
+    //fmt.printfln("[EX] from: %c; to: %c", state^, to);
+    //fmt.printfln("[EX] diff: %v", diff);
+    for diff.y > 0 {
+        strings.write_byte(out, 'v');
+        diff.y -= 1;
+    }
+    for diff.x < 0 {
+        strings.write_byte(out, '<');
+        diff.x += 1;
+    }
+    for diff.x > 0 {
+        strings.write_byte(out, '>');
+        diff.x -= 1;
+    }
+    for diff.y < 0 {
+        strings.write_byte(out, '^');
+        diff.y += 1;
     }
 
-    unimplemented("[SOLVE] Invalid key");
-}
-
-solve_dir :: proc (idx: int) -> u8 {
-    switch idx {
-    case 0: unimplemented("[SOLVE] Invalid key");
-    case 1: return '^';
-    case 2: return 'A';
-    case 3: return '<'; case 4: return 'v'; case 5: return '>';
-    }
-
-    unimplemented("[SOLVE] Invalid key");
-}
-
-print_states :: proc() {
-    fmt.printfln("[OURS] [%v] %c", states[.OURS], solve_dir(states[.OURS]));
-    fmt.printfln("[ROB1] [%v] %c", states[.ROB1], solve_dir(states[.ROB1]));
-    fmt.printfln("[ROB2] [%v] %c", states[.ROB2], solve_dir(states[.ROB2]));
-    fmt.printfln("[NUMS] [%v] %c", states[.NUMS], solve_numeric(states[.NUMS]));
+    strings.write_byte(out, 'A');
+    state^ = to;
 }
