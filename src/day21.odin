@@ -1,6 +1,7 @@
 package main
 import "core:c"
 import "core:fmt"
+import "core:mem"
 import "core:slice"
 import "core:strconv"
 import "core:strings"
@@ -27,7 +28,7 @@ d21run :: proc (p1, p2: ^strings.Builder) {
     pad_state: [3]byte = 'A';
 
     total := 0;
-    for code in codes[2:3] {
+    for code in codes[4:5] {
         current := code;
         val, ok := strconv.parse_int(current, 10);
         fmt.printfln("CODE: '%v' (value = '%v')", current, val);
@@ -41,6 +42,7 @@ d21run :: proc (p1, p2: ^strings.Builder) {
             }
             current = strings.clone(strings.to_string(next));
             strings.builder_reset(&next);
+            mem.zero(raw_data(next.buf), strings.builder_cap(next));
             fmt.printfln("round %v: %v (%v)", round, current, len(current));
         }
 
@@ -72,6 +74,10 @@ expand :: proc(pos_map: map[byte]Vec2, to: byte, state: ^byte, out: ^strings.Bui
         strings.write_byte(out, 'v');
         diff.y -= 1;
     }
+    for diff.y < 0 {
+        strings.write_byte(out, '^');
+        diff.y += 1;
+    }
     for diff.x < 0 {
         strings.write_byte(out, '<');
         diff.x += 1;
@@ -79,10 +85,6 @@ expand :: proc(pos_map: map[byte]Vec2, to: byte, state: ^byte, out: ^strings.Bui
     for diff.x > 0 {
         strings.write_byte(out, '>');
         diff.x -= 1;
-    }
-    for diff.y < 0 {
-        strings.write_byte(out, '^');
-        diff.y += 1;
     }
 
     strings.write_byte(out, 'A');
