@@ -14,21 +14,8 @@ d21run :: proc (p1, p2: ^strings.Builder) {
     input := strings.trim(#load(input_file, string) or_else "", "\r\n");
     codes := strings.split_lines(input);
 
-    keypas_pos: map[byte]Vec2 = {
-        '7' = {0, 0}, '8' = {1, 0}, '9' = {2, 0},
-        '4' = {0, 1}, '5' = {1, 1}, '6' = {2, 1},
-        '1' = {0, 2}, '2' = {1, 2}, '3' = {2, 2},
-                      '0' = {1, 3}, 'A' = {2, 3},
-    }
-
-    dirs_pos: map[byte]Vec2 = {
-                      '^' = {1, 0}, 'A' = {2, 0},
-        '<' = {0, 1}, 'v' = {1, 1}, '>' = {2, 1},
-    }
-    pad_state: [3]byte = 'A';
-
     total := 0;
-    for code in codes[4:5] {
+    for code in codes[:] {
         current := code;
         val, ok := strconv.parse_int(current, 10);
         fmt.printfln("CODE: '%v' (value = '%v')", current, val);
@@ -36,18 +23,30 @@ d21run :: proc (p1, p2: ^strings.Builder) {
         next := strings.builder_make_len_cap(0, 256);
         defer strings.builder_destroy(&next);
 
-        for round in 0..<3 {
+        // KEYPAD SIM
+        key_state: byte = 'A';
+        for target in current {
+            expand_door(&next, &key_state, cast(byte)target);
+        }
+        fmt.printfln("    out: %v", strings.to_string(next));
+
+        // ROBOTS SIM
+        /*
+        for round in 0..<2 {
+            fmt.print("    ");
             for target in current {
-                expand(keypas_pos if round == 0 else dirs_pos, cast(byte)target, &pad_state[round], &next);
+                fmt.printf("%v, ", target);
             }
+            fmt.println();
             current = strings.clone(strings.to_string(next));
             strings.builder_reset(&next);
             mem.zero(raw_data(next.buf), strings.builder_cap(next));
-            fmt.printfln("round %v: %v (%v)", round, current, len(current));
         }
+        */
 
-        total += val * len(current);
-        fmt.printfln("CODE COMPLEXITY: %v * %v = %v", val, len(current), val * len(current));
+        complexity := val * len(current);
+        total += complexity;
+        fmt.printfln("    Complexity = (%v * %v) = %v", val, len(current), complexity);
     }
 
     strings.write_int(p1, total);
@@ -66,27 +65,53 @@ d21run :: proc (p1, p2: ^strings.Builder) {
     */
 }
 
-expand :: proc(pos_map: map[byte]Vec2, to: byte, state: ^byte, out: ^strings.Builder) {
-    diff := pos_map[to] - pos_map[state^];
-    //fmt.printfln("[EX] from: %c; to: %c", state^, to);
-    //fmt.printfln("[EX] diff: %v", diff);
-    for diff.y > 0 {
-        strings.write_byte(out, 'v');
-        diff.y -= 1;
+expand_door :: proc (out: ^strings.Builder, from: ^byte, to: byte) {
+    keypas_pos: map[byte]Vec2 = {
+        '7' = {0, 0}, '8' = {1, 0}, '9' = {2, 0},
+        '4' = {0, 1}, '5' = {1, 1}, '6' = {2, 1},
+        '1' = {0, 2}, '2' = {1, 2}, '3' = {2, 2},
+                      '0' = {1, 3}, 'A' = {2, 3},
     }
-    for diff.y < 0 {
-        strings.write_byte(out, '^');
-        diff.y += 1;
+    def_order: []byte = { '<', 'v', '^', '>' };
+    alt_order: []byte = { '^', '>', 'v', '<' };
+
+    fpos := keypas_pos[from^];
+    tpos := keypas_pos[to];
+    diff := tpos - fpos;
+    fmt.printfln("    expand from: %c (%v) ; to: %c (%v) -> diff: %v", from^, fpos, to, tpos, diff);
+
+    order := &def_order;
+    if (fpos.y == 3 && tpos.x == 0) || (tpos.y == 3 && fpos.x == 0) {
+        order = &alt_order;
     }
-    for diff.x < 0 {
-        strings.write_byte(out, '<');
-        diff.x += 1;
-    }
-    for diff.x > 0 {
-        strings.write_byte(out, '>');
-        diff.x -= 1;
+
+    for char in order^ {
+        if char == '<' {
+            for diff.x < 0 {
+                strings.write_byte(out, char);
+                diff.x += 1;
+            }
+        }
+        else if char == '>' {
+            for diff.x > 0 {
+                strings.write_byte(out, char);
+                diff.x -= 1;
+            }
+        }
+        else if char == '^' {
+            for diff.y < 0 {
+                strings.write_byte(out, char);
+                diff.y += 1;
+            }
+        }
+        else if char == 'v' {
+            for diff.y > 0 {
+                strings.write_byte(out, char);
+                diff.y -= 1;
+            }
+        }
     }
 
     strings.write_byte(out, 'A');
-    state^ = to;
+    from^ = to;
 }
