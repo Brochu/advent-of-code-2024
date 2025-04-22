@@ -84,6 +84,37 @@ d20run :: proc (p1, p2: ^strings.Builder) {
     //fmt.printfln("[%v] SET: %v", len(path_set), path_set);
     //TODO: Start checking possible cheats at all steps?
 
+    // I think we can setup a Dijkstra-style path finding keeping track of a flag if we used cheat or not
+    // Also need to keep track of how many collision were ignored (not more than 2 picosecs worth)
+    // Allow to cross `#`s if we still have some cheat active
+
+    /*
+    dist := make([]int, DIM*DIM);
+    prev := make([]int, DIM*DIM);
+    slice.fill(prev, -1);
+    slice.fill(dist, max(int));
+    dist[start] = 0;
+
+    context.user_ptr = &dist;
+    q: pq.Priority_Queue(int);
+    pq.init(&q, less_proc, pq.default_swap_proc(int));
+    pq.push(&q, start);
+
+    for pq.len(q) > 0 {
+        idx := pq.pop(&q);
+        //fmt.printfln("[Q] visiting %v -> %v", idx, pos);
+        delete_key(&check, idx);
+
+        for n in find_next(grid, idx) {
+            alt := dist[idx] + 1; // 1 for now, check turns later
+            if alt < dist[n] {
+                dist[n], prev[n] = alt, idx;
+                pq.push(&q, n);
+            }
+        }
+    }
+    */
+
     strings.write_int(p1, len(path_set));
     strings.write_int(p2, 20);
 
