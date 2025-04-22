@@ -28,21 +28,22 @@ d21run :: proc (p1, p2: ^strings.Builder) {
         for target in current {
             expand_door(&next, &key_state, cast(byte)target);
         }
-        fmt.printfln("    out: %v", strings.to_string(next));
+        current = strings.clone(strings.to_string(next));
+        strings.builder_reset(&next);
+        mem.zero(raw_data(next.buf), strings.builder_cap(next));
+        //fmt.printfln("    out: %v", current);
 
         // ROBOTS SIM
-        /*
         for round in 0..<2 {
-            fmt.print("    ");
+            dir_state: byte = 'A';
             for target in current {
-                fmt.printf("%v, ", target);
+                expand_dirs(&next, &dir_state, cast(byte)target);
             }
-            fmt.println();
             current = strings.clone(strings.to_string(next));
             strings.builder_reset(&next);
             mem.zero(raw_data(next.buf), strings.builder_cap(next));
+            //fmt.printfln("    out (step: %v): %v", round, current);
         }
-        */
 
         complexity := val * len(current);
         total += complexity;
@@ -78,7 +79,7 @@ expand_door :: proc (out: ^strings.Builder, from: ^byte, to: byte) {
     fpos := keypas_pos[from^];
     tpos := keypas_pos[to];
     diff := tpos - fpos;
-    fmt.printfln("    expand from: %c (%v) ; to: %c (%v) -> diff: %v", from^, fpos, to, tpos, diff);
+    //fmt.printfln("    expand from: %c (%v) ; to: %c (%v) -> diff: %v", from^, fpos, to, tpos, diff);
 
     order := &def_order;
     if (fpos.y == 3 && tpos.x == 0) || (tpos.y == 3 && fpos.x == 0) {
@@ -113,5 +114,49 @@ expand_door :: proc (out: ^strings.Builder, from: ^byte, to: byte) {
     }
 
     strings.write_byte(out, 'A');
+    from^ = to;
+}
+
+expand_dirs :: proc(out: ^strings.Builder, from: ^byte, to: byte) {
+    dirs_map: map[byte]map[byte]string = {
+        '<' = {
+            'v' = ">A",
+            '>' = ">>A",
+            '^' = ">^A",
+            'A' = ">>^A"
+        },
+        'v' = {
+            '<' = "<A",
+            '>' = ">A",
+            '^' = "^A",
+            'A' = "^>A"
+        },
+        '>' = {
+            'v' = "<A",
+            '<' = "<<A",
+            '^' = "<^A",
+            'A' = "^A"
+        },
+        '^' = {
+            'v' = "vA",
+            '>' = "v>A",
+            '<' = "v<A",
+            'A' = ">A"
+        },
+        'A' = {
+            'v' = "<vA",
+            '>' = "vA",
+            '^' = "<A",
+            '<' = "v<<A"
+        },
+    }
+
+    path: string;
+    ok: bool;
+    if path, ok = dirs_map[from^][to]; !ok {
+        path = "A";
+    }
+    //fmt.printfln("    expand from: %c ; to: %c -> path: '%v'", from^, to, path);
+    strings.write_string(out, path);
     from^ = to;
 }
