@@ -39,6 +39,9 @@ Node :: struct {
     cost: int,
 }
 
+@(private="file")
+CheatId :: distinct [2]Vec2;
+
 /*
 Code is basically the same for both parts. I use dfs to calcualte the original path and number of steps
 from start to finish at each point along the way. I then walk the path and find the number of cheats to
@@ -76,17 +79,57 @@ d20run :: proc (p1, p2: ^strings.Builder) {
 
         if (grid[tidx] == '.' || grid[tidx] == 'E') && !(tidx in path_set) {
             path[cidx].dir = target - curr;
-            path[cidx].cost = len(path_set);
+            path[cidx].cost = len(path_set) - 1;
             curr = target;
             break;
         }
     }
-    //fmt.printfln("[%v] SET: %v", len(path_set), path_set);
-    //TODO: Start checking possible cheats at all steps?
+    path[(idx_coord(end))].cost = len(path_set);
 
-    strings.write_int(p1, len(path_set));
+    cheats := make(map[int][dynamic]CheatId);
+    for idx in path_set {
+        // Check all possible cheats, group by time saved
+        coord := coord_idx(idx);
+        //fmt.printfln("[%v] -> cost: %v", coord, path[idx].cost);
+        for d in Dir {
+            start, end := coord + DIRS[d], coord + 2*DIRS[d];
+            sidx, eidx := idx_coord(start), idx_coord(end);
+            if sidx < 0 || eidx < 0 || sidx >= DIM*DIM || eidx >= DIM*DIM {
+                continue;
+            }
+
+            saved := (path[eidx].cost - path[idx].cost) - 2;
+            if grid[sidx] == '#' && (grid[eidx] == '.' || grid[eidx] == 'E') && saved > 0 {
+                /*
+                fmt.printfln("    FOUND CHEAT -> from %v(%v) to %v(%v) ; saved = %v",
+                    coord, path[idx].cost,
+                    end, path[eidx].cost,
+                    saved
+                );
+                */
+
+                newId: CheatId = { start, end };
+                if bucket, ok := &cheats[saved]; ok {
+                    append(bucket, newId);
+                } else {
+                    cheats[saved] = [dynamic]CheatId { newId };
+                }
+            }
+        }
+    }
+
+    p1_res := 0;
+    for key, val in cheats {
+        //fmt.printfln(" - %v cheats saving %v", len(val), key);
+        if key >= 100 {
+            p1_res += len(val);
+        }
+    }
+
+    strings.write_int(p1, p1_res);
     strings.write_int(p2, 20);
 
+    /*
     off: c.int : 5 when EXAMPLE else 50;
     spacing: c.int : 53 when EXAMPLE else 5;
     minus: c.int : 5 when EXAMPLE else 1;
@@ -144,6 +187,7 @@ d20run :: proc (p1, p2: ^strings.Builder) {
         rl.EndDrawing();
     }
     rl.CloseWindow();
+    */
 }
 
 idx_coord :: proc (coord: Vec2) -> int { return (coord.y * DIM) + coord.x }
