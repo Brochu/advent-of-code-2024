@@ -65,7 +65,7 @@ d14run :: proc (p1, p2: ^strings.Builder) {
         append(&steps, slice.clone(robots));
     }
 
-    start := 17844;
+    start := 7338;
     for sec in 0..<start {
         for i in 0..<len(robots_p2) {
             sim_robot(&robots_p2[i]);
@@ -74,24 +74,30 @@ d14run :: proc (p1, p2: ^strings.Builder) {
 
     render_p2: []Robot;
     render_idx := start;
-    //TODO: Look into a way to check if most robots are grouped in one spot
-    //for true {
-    //    checked := make(map[int]int);
-    //    for i in 0..<len(robots) {
-    //        sim_robot(&robots_p2[i]);
-    //        idx := (robots_p2[i].pos.y * XDIM) + robots_p2[i].pos.x;
-    //        checked[idx] += 1;
-    //    }
-    //    max_count := 0;
-    //    for _, v in checked {
-    //        max_count = math.max(max_count, v);
-    //    }
-    //    if max_count >= 5 {
-    //        render_p2 = slice.clone(robots_p2);
-    //        break;
-    //    }
-    //    render_idx += 1;
-    //}
+    /*
+    lines := make(map[int]int);
+    cols := make(map[int]int);
+    for true {
+        for i in 0..<len(robots) {
+            sim_robot(&robots_p2[i]);
+            idx := (robots_p2[i].pos.y * XDIM) + robots_p2[i].pos.x;
+        }
+
+        clear_map(&lines);
+        for r in robots_p2 {
+            lines[r.pos.x] += 1;
+        }
+
+        max_lines := 0;
+        for _, v in lines {
+            if v > max_lines do max_lines = v;
+        }
+        fmt.printfln(" -> %v", max_lines);
+
+        render_idx += 1;
+        if max_lines >= 35 do break;
+    }
+    */
 
     quadrants: [4]int;
     for robot in robots {
@@ -111,11 +117,19 @@ d14run :: proc (p1, p2: ^strings.Builder) {
     margin := c.int(5) when EXAMPLE else c.int(1);
 
     fnum := 0;
-    time := 1;
+    time := 10;
     p2 := true;
     rl.InitWindow(800, 750, strings.to_cstring(&title));
     rl.SetTargetFPS(60);
     for !rl.WindowShouldClose() {
+        /*
+        if fnum % time == 0 {
+            for _ in 0..<101 do for i in 0..<len(robots_p2) {
+                sim_robot(&robots_p2[i]);
+            }
+            render_idx += 101;
+        }
+        */
         rl.BeginDrawing();
         rl.ClearBackground(rl.BLACK);
 
@@ -123,8 +137,9 @@ d14run :: proc (p1, p2: ^strings.Builder) {
             px := c.int(xoff + (c.int(x) * spacing));
             py := c.int(yoff + (c.int(y) * spacing));
 
-            step := steps[fnum/time];
+            //step := steps[fnum/time];
             //step := render_p2;
+            step := robots_p2;
             cell := Vec2 { x, y };
             context.user_ptr = &cell;
             count := slice.count_proc(step, proc (r: Robot) -> bool {
