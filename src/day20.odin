@@ -112,7 +112,8 @@ d20run :: proc (p1, p2: ^strings.Builder) {
                 if bucket, ok := &cheats[saved]; ok {
                     append(bucket, newId);
                 } else {
-                    cheats[saved] = [dynamic]CheatId { newId };
+                    cheats[saved] = make([dynamic]CheatId)
+                    append(&cheats[saved], newId);
                 }
             }
         }
